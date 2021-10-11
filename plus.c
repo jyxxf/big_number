@@ -12,13 +12,13 @@ void plus(const char *previous, const char *last, char **result)
         plus(previous, last + 1, result);
         return;
     }
-    if (*previous == '-' && *last == '-')
+    if (*previous == '-' && *last == '-') //两个都是负号，将结果第一个也置为负号
     {
         (*result)[0] = '-';
         plus(previous + 1, last + 1, result);
         return;
     }
-    if(*previous=='-')
+    if (*previous == '-')
     {
         minus(last, previous + 1, result);
         return;
@@ -37,11 +37,11 @@ void plus(const char *previous, const char *last, char **result)
     size_t l_fraction_len;
     length = length * 2 + 1;
     *result = (char *)realloc(*result, length);
-    (*result)[0] == '-' ? memset(*result + 1, 0, length - 1) : memset(*result, 0, length);
+    (*result)[0] == '-' ? memset(*result + 1, 0, length - 1) : memset(*result, 0, length); //"-" + "-" 或者"-" - "+"
 
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    if (pre_point && last_point)
+    if (pre_point && last_point) //按小数点分为四种情况
     {
         p_int_len = pre_point - previous;
         l_int_len = last_point - last;

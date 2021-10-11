@@ -6,7 +6,7 @@ static void compare(char **result, const char *aim);
 
 int main(void)
 {
-    char *result = (char *)malloc(1);
+    char *result = (char *)calloc(1, 1);
 #if 0
     printf("\n plus\n");
     plus("2.035", "+6541.25", &result);
@@ -58,15 +58,26 @@ int main(void)
     compare(&result, "1219326310196518.82533161172992");
     multiply("-3.0", "-4.441", &result);
     compare(&result, "13.3230");
-    multiply("-3.13", "4.441", &result);
-    compare(&result, "-13.90033");
+    multiply("-313.13", "4.442487671", &result);
+    compare(&result, "-1391.07616442023");
+    multiply("1.0", "1.0", &result);
+    compare(&result, "1.00");
     multiply("-293324324548742", "91334534624242", &result);
-    compare(&result, "");
+    compare(&result, "-26790640676629473861183803564");
+    multiply("3232187", "746.9876", &result);
+    compare(&result, "2414403609.8812");
+    multiply("323.218723", "746", &result);
+    compare(&result, "241121.167358");
+    multiply("-3", "2", &result);
+    compare(&result, "-6");
+    multiply("3", "0.0", &result);
+    compare(&result, "0.0");
+
     free(result);
     return 0;
 }
 
-static void compare(char **result, const char *aim)
+static void compare(char **result, const char *aim) //比较完成后全部置0
 {
     size_t i = 0;
     while (aim[i])
@@ -82,7 +93,7 @@ static void compare(char **result, const char *aim)
     memset(*result, 0, i);
 }
 
-void reverse(char **result)
+void reverse(char **result) //第一个是负号不翻转，其余逆序输出
 {
     if ((*result)[0] == '-')
     {
@@ -101,10 +112,10 @@ void reverse(char **result)
     }
 }
 
-void add_MinusSign(char** result)
+void add_MinusSign(char **result) //向后挪一位，增加负号
 {
-    (*result) = (char*)realloc(*result, strlen(*result) + 2);
-    for (size_t i = strlen(*result); i >0; i--)
+    (*result) = (char *)realloc(*result, strlen(*result) + 2);
+    for (size_t i = strlen(*result); i > 0; i--)
         (*result)[i] = (*result)[i - 1];
     (*result)[0] = '-';
 }

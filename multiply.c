@@ -4,6 +4,7 @@ static void add_point(char **result, size_t fraction_len);
 
 void multiply(const char *previous, const char *last, char **result)
 {
+    char Minus_Sign = 0;
     if (*previous == '+')
     {
         multiply(previous + 1, last, result);
@@ -21,17 +22,24 @@ void multiply(const char *previous, const char *last, char **result)
     }
     if (*previous == '-')
     {
+        (*result)[0] = '-';
         multiply(previous + 1, last, result);
-        add_MinusSign(result);
         return;
     }
     if (*last == '-')
     {
+        (*result)[0] = '-';
         multiply(previous, last + 1, result);
-        add_MinusSign(result);
         return;
     }
-    char **temp = (char **)malloc(sizeof(char *) * (strlen(last) - 1));
+    if ((*result)[0] == '-')
+    {
+        Minus_Sign = 1;
+        (*result)[0] = 0;
+    }
+    //下面有问题
+
+    char **temp = (char **)malloc(sizeof(char *) * strlen(last));
     size_t j = 0;
     size_t l_len = strlen(last);
     for (size_t i = 0; i < strlen(last); i++)
@@ -48,17 +56,32 @@ void multiply(const char *previous, const char *last, char **result)
     plus_temp[1] = 0;
     while (j--)
     {
+        if (j == 0 && Minus_Sign)
+            (*result)[0] = '-';
         plus(temp[j], plus_temp, result);
         plus_temp = (char *)realloc(plus_temp, strlen(*result) + 1);
-        memset(plus_temp, 0, strlen(*result) + 1);
         memcpy(plus_temp, *result, strlen(*result));
+        plus_temp[strlen(*result)] = 0;
         free(temp[j]);
     }
     free(plus_temp);
     free(temp);
-    size_t pre_fraction_len = strlen(previous) - (strchr(previous, '.') - previous) - 1;
-    size_t l_fraction_len = strlen(last) - (strchr(last, '.') - last) - 1;
-    add_point(result, pre_fraction_len + l_fraction_len);
+
+    char *pre_point = strchr(previous, '.');
+    char *l_point = strchr(last, '.');
+    if (pre_point && l_point)
+    {
+        size_t pre_fraction_len = strlen(previous) - (pre_point - previous) - 1;
+        size_t l_fraction_len = strlen(last) - (l_point - last) - 1;
+        add_point(result, pre_fraction_len + l_fraction_len);
+    }
+    else if (pre_point == NULL && l_point == NULL)
+        return;
+    else //其中某一个有小数点
+    {
+        size_t position = pre_point == NULL ? strlen(last) - (l_point - last) - 1 : strlen(previous) - (pre_point - previous) - 1;
+        add_point(result, position);
+    }
 }
 
 static void multip(const char *previous, const char last, char **result, size_t row)

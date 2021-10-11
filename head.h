@@ -23,5 +23,5 @@ void plus_int(const char *previous, const char *last, const char *pre_point, con
               u8 *carry, char **result, size_t *position);
 void reverse(char **result);
 void minus(const char *previous, const char *last, char **result);
-void multiply(const char* previous, const char* last, char** result);
-void add_MinusSign(char** result);
+void multiply(const char *previous, const char *last, char **result);
+void add_MinusSign(char **result);

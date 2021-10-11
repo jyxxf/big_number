@@ -56,7 +56,7 @@ static void big_minus_small(const char *previous, const char *last, char **resul
     u8 borrow = 0;
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    if (pre_point && last_point)
+    if (pre_point && last_point) //按有无小数点也分为4种情况
     {
         size_t pre_fraction_len = strlen(previous) - (pre_point - previous) - 1;
         size_t l_fraction_len = strlen(last) - (last_point - last) - 1;
@@ -246,7 +246,7 @@ static void big_minus_small(const char *previous, const char *last, char **resul
     }
 }
 
-static char compare(const char *previous, const char *last) //返回1前面大
+static char compare(const char *previous, const char *last) //前面大则返回1
 {
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
