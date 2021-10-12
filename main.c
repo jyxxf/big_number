@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "head.h"
+
 static void compare(char **result, const char *aim);
 
 int main(void)
@@ -50,7 +51,7 @@ int main(void)
     compare(&result, "6772.25582147");
     minus("-2.01", "+555.5555", &result);
     compare(&result, "-557.5655");
-#endif
+
     printf("\n multiply\n");
     multiply("3.13", "4.441", &result);
     compare(&result, "13.90033");
@@ -60,19 +61,29 @@ int main(void)
     compare(&result, "13.3230");
     multiply("-313.13", "4.442487671", &result);
     compare(&result, "-1391.07616442023");
-    multiply("1.0", "1.0", &result);
+    multiply("1.0", "+1.0", &result);
     compare(&result, "1.00");
     multiply("-293324324548742", "91334534624242", &result);
     compare(&result, "-26790640676629473861183803564");
     multiply("3232187", "746.9876", &result);
     compare(&result, "2414403609.8812");
-    multiply("323.218723", "746", &result);
+    multiply("+323.218723", "746", &result);
     compare(&result, "241121.167358");
     multiply("-3", "2", &result);
     compare(&result, "-6");
     multiply("3", "0.0", &result);
     compare(&result, "0.0");
+    multiply("3.3", "1000", &result);
+    compare(&result, "3300");
+#endif
+    multiply("-3", "1000", &result);
+    compare(&result, "-3000");
 
+    printf("\n devide\n");
+    //devide("3.3", "436.8765", 16, &result);
+    //compare(&result, "0.0075536221334862");
+    //devide("436.8765", "3.3", 14, &result);
+    //compare(&result, "132.38681818181818");
     free(result);
     return 0;
 }

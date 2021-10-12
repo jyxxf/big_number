@@ -1,5 +1,5 @@
 #include "head.h"
-static char compare(const char *previous, const char *last);
+char compare(const char* previous, const char* last);
 static void big_minus_small(const char *previous, const char *last, char **result);
 
 void minus(const char *previous, const char *last, char **result)
@@ -246,7 +246,7 @@ static void big_minus_small(const char *previous, const char *last, char **resul
     }
 }
 
-static char compare(const char *previous, const char *last) //前面大则返回1
+char compare(const char *previous, const char *last) //前面大则返回1 相同返回0
 {
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
