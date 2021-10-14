@@ -26,4 +26,4 @@ void minus(const char *previous, const char *last, char **result);
 void multiply(const char *previous, const char *last, char **result);
 void add_MinusSign(char **result);
 void devide(const char* previous, const char* last, size_t fraction_len, char** result);
-
+void RemainderQuotient(const char *previous, const char *last, char **Remainder, char **Quotient);
