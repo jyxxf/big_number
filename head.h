@@ -28,66 +28,66 @@ void add_MinusSign(char **result);
 void devide(const char *previous, const char *last, size_t fraction_len, char **result);
 void erase0(char **result);
 
-#define divd()                                                                       \
-    do                                                                               \
-    {                                                                                \
-        combine(minus_result, *tail, &temp_p);                                       \
-        switch (compare(temp_p, last))                                               \
-        {                                                                            \
-        case 0: /*相同*/                                                           \
-            (*result)[index] = '1';                                                  \
-            minus_result = (char *)realloc(minus_result, 1);                         \
-            minus_result[0] = 0;                                                     \
-            break;                                                                   \
-        case 1: /*被除数大一点*/                                               \
-        {                                                                            \
-            char small = '0'; /*二分法*/                                          \
-            char big = '9';                                                          \
-            char now[2];                                                             \
-            now[0] = '5';                                                            \
-            now[1] = 0;                                                              \
-            char *mul_result = (char *)malloc(1);                                    \
-            while (!(*result)[index]) /*只要写进去就退出循环*/             \
-            {                                                                        \
-                multiply(now, last, &mul_result);                                    \
-                switch (compare(mul_result, temp_p)) /*乘出来的和被除数比*/ \
-                {                                                                    \
-                case 0:                                                              \
-                    (*result)[index] = now[0];                                       \
-                    break;                                                           \
-                case 1: /*太大了 要小一点*/                                   \
-                    if (big - small == 1 || big - small == 2)                        \
-                        (*result)[index] = now[0];                                   \
-                    big = now[0];                                                    \
-                    now[0] = (now[0] + small) / 2;                                   \
-                    break;                                                           \
-                case -1:                                                             \
-                    if (big - small == 1 || big - small == 2)                        \
-                        (*result)[index] = now[0];                                   \
-                    small = now[0];                                                  \
-                    now[0] = (now[0] + big) / 2;                                     \
-                    break;                                                           \
-                }                                                                    \
-            }                                                                        \
-            minus(temp_p, mul_result, &minus_result); /*减法*/                     \
-            temp_p = (char *)realloc(temp_p, strlen(minus_result) + 1);              \
-            memcpy(temp_p, minus_result, strlen(minus_result) + 1);                  \
-            break;                                                                   \
-        }                                                                            \
-        case -1: /*除数大一点，结果为0*/                                    \
-            if (index)                                                               \
-            {                                                                        \
-                (*result)[index] = '0';                                              \
-            }                                                                        \
-            else                                                                     \
-            {                                                                        \
-                minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1);    \
-                memcpy(minus_result, temp_p, strlen(temp_p));                        \
-                minus_result[strlen(temp_p)] = 0;                                    \
-            }                                                                        \
-            break;                                                                   \
-        }                                                                            \
-        if ((*result)[index])                                                        \
-            index++;                                                                 \
-        tail++;                                                                      \
+#define DIV()                                                                    \
+    do                                                                            \
+    {                                                                             \
+        combine(minus_result, *tail, &temp_p);                                    \
+        switch (compare(temp_p, last))                                            \
+        {                                                                         \
+        case 0:                                                                   \
+            (*result)[index] = '1';                                               \
+            minus_result = (char *)realloc(minus_result, 1);                      \
+            minus_result[0] = 0;                                                  \
+            break;                                                                \
+        case 1:                                                                   \
+        {                                                                         \
+            char small = '0';                                                     \
+            char big = '9';                                                       \
+            char now[2];                                                          \
+            now[0] = '5';                                                         \
+            now[1] = 0;                                                           \
+            char *mul_result = (char *)malloc(1);                                 \
+            while (!(*result)[index])                                             \
+            {                                                                     \
+                multiply(now, last, &mul_result);                                 \
+                switch (compare(mul_result, temp_p))                              \
+                {                                                                 \
+                case 0:                                                           \
+                    (*result)[index] = now[0];                                    \
+                    break;                                                        \
+                case 1:                                                           \
+                    if (big - small == 1 || big - small == 2)                     \
+                        (*result)[index] = now[0];                                \
+                    big = now[0];                                                 \
+                    now[0] = (now[0] + small) / 2;                                \
+                    break;                                                        \
+                case -1:                                                          \
+                    if (big - small == 1 || big - small == 2)                     \
+                        (*result)[index] = now[0];                                \
+                    small = now[0];                                               \
+                    now[0] = (now[0] + big) / 2;                                  \
+                    break;                                                        \
+                }                                                                 \
+            }                                                                     \
+            minus(temp_p, mul_result, &minus_result);                             \
+            temp_p = (char *)realloc(temp_p, strlen(minus_result) + 1);           \
+            memcpy(temp_p, minus_result, strlen(minus_result) + 1);               \
+            break;                                                                \
+        }                                                                         \
+        case -1:                                                                  \
+            if (index)                                                            \
+            {                                                                     \
+                (*result)[index] = '0';                                           \
+            }                                                                     \
+            else                                                                  \
+            {                                                                     \
+                minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1); \
+                memcpy(minus_result, temp_p, strlen(temp_p));                     \
+                minus_result[strlen(temp_p)] = 0;                                 \
+            }                                                                     \
+            break;                                                                \
+        }                                                                         \
+        if ((*result)[index])                                                     \
+            index++;                                                              \
+        tail++;                                                                   \
     } while (0)
