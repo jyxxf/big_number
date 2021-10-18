@@ -51,6 +51,8 @@ int main(void)
     compare(&result, "6772.25582147");
     minus("-2.01", "+555.5555", &result);
     compare(&result, "-557.5655");
+    minus("14", "12", &result);
+    compare(&result, "2");
 
     printf("\n multiply\n");
     multiply("3.13", "4.441", &result);
@@ -75,15 +77,14 @@ int main(void)
     compare(&result, "0.0");
     multiply("3.3", "1000", &result);
     compare(&result, "3300");
-#endif
     multiply("-3", "1000", &result);
     compare(&result, "-3000");
-
+#endif
     printf("\n devide\n");
-    //devide("3.3", "436.8765", 16, &result);
-    //compare(&result, "0.0075536221334862");
-    //devide("436.8765", "3.3", 14, &result);
-    //compare(&result, "132.38681818181818");
+    devide("53", "52", 30, &result);
+    compare(&result, "1.019230769230769230769230769230");
+    //devide("323", "10", 30, &result);
+    //compare(&result, "80.750000000000");
     free(result);
     return 0;
 }

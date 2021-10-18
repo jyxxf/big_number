@@ -47,6 +47,7 @@ void minus(const char *previous, const char *last, char **result)
         (*result)[0] = '0';
         (*result)[1] = 0;
     }
+    erase0(result);
     reverse(result);
 }
 
@@ -330,4 +331,17 @@ char compare(const char *previous, const char *last) //前面大则返回1 相�
             }
         }
     }
+}
+
+void erase0(char** result)
+{
+    size_t i = strlen(*result) - 1;
+    if (i == 0)
+        return;
+    if ((*result)[i] == '+' || (*result)[i] == '-')
+        i--;
+    if (i == 0)
+        return;
+    if ((*result)[i] == '0' && (*result)[i - 1] <= '9' && (*result)[i - 1] >= '0')
+        memmove(*result + i, *result + i + 1, strlen(*result) - i);
 }
