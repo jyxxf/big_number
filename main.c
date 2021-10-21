@@ -51,8 +51,8 @@ int main(void)
     compare(&result, "6772.25582147");
     minus("-2.01", "+555.5555", &result);
     compare(&result, "-557.5655");
-    minus("14", "12", &result);
-    compare(&result, "2");
+    minus("156", "160", &result);
+    compare(&result, "-4");
 
     printf("\n multiply\n");
     multiply("3.13", "4.441", &result);
@@ -79,12 +79,47 @@ int main(void)
     compare(&result, "3300");
     multiply("-3", "1000", &result);
     compare(&result, "-3000");
-#endif
+
     printf("\n devide\n");
+
     devide("53", "52", 30, &result);
     compare(&result, "1.019230769230769230769230769230");
-    //devide("323", "10", 30, &result);
-    //compare(&result, "80.750000000000");
+    devide("52", "-53", 30, &result);
+    compare(&result, "-0.981132075471698113207547169811");
+    devide("43857629876489230856", "98765", 10, &result);
+    compare(&result, "444060445263901.4919860274");
+    devide("-1", "45342554365498765", 10, &result);
+    compare(&result, "-0.0000000000");
+    devide("1", "45342554365498765", 20, &result);
+    compare(&result, "0.00000000000000002205");
+    devide("44", "44", 10, &result);
+    compare(&result, "1.0000000000");
+    devide("44", "-44", 0, &result);
+    compare(&result, "-1");
+    devide("4", "7", 20, &result);
+    compare(&result, "0.57142857142857142857");
+    devide("0", "75435", 10, &result);
+    compare(&result, "0.0000000000");
+
+
+    devide("3.33", "4", 5, &result);
+    compare(&result, "0.83250");
+    devide("3.33", "4", 0, &result);
+    compare(&result, "0");
+    devide("333.000", "333", 7, &result);
+    compare(&result, "1.0000000");
+    devide("333.000", "333", 0, &result);
+    compare(&result, "1");
+    devide("2342345435345.234242352353", "2342435544", 28, &result);
+    compare(&result, "999.9615320664867107021464322520");
+    devide("97723.89732390472209", "9678434352", 25, &result);
+    compare(&result, "0.0000100970770446679289611");
+    devide("0", "75435.43535", 10, &result);
+    compare(&result, "0.0000000000");
+#endif
+    multiply("0.001", "1000", &result);
+    compare(&result, "1");
+
     free(result);
     return 0;
 }
@@ -130,4 +165,33 @@ void add_MinusSign(char **result) //向后挪一位，增加负号
     for (size_t i = strlen(*result); i > 0; i--)
         (*result)[i] = (*result)[i - 1];
     (*result)[0] = '-';
+}
+
+//0.001*100=
+void erase0(char **result, char calculate)
+{
+    if ((*result)[0] == '+' || (*result)[0] == '-')
+    {
+        char *temp = *result + 1;
+        erase0(&temp, calculate);
+        return;
+    }
+    if (calculate == '-') //反着的
+    {
+        size_t i = strlen(*result);
+        if (i == 1)
+            return;
+        if ((*result)[i - 2] == '.')
+            return;
+        while ((*result)[i - 1] == '0')
+        {
+            (*result)[i - 1] = (*result)[i];
+            (*result)[i] = 0;
+            i--;
+            
+        }
+    }
+    else
+    {
+    }
 }

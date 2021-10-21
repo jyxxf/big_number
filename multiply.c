@@ -82,6 +82,7 @@ void multiply(const char *previous, const char *last, char **result)
         size_t position = pre_point == NULL ? strlen(last) - (l_point - last) - 1 : strlen(previous) - (pre_point - previous) - 1;
         add_point(result, position);
     }
+    erase0(result, '*');
 }
 
 static void multip(const char *previous, const char last, char **result, size_t row)

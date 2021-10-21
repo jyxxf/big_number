@@ -1,62 +1,73 @@
 #include "head.h"
 extern char compare(const char *previous, const char *last);
 static void combine(const char *str, const char num, char **result);
-
-//void devide(const char *previous, const char *last, size_t fraction_len, char **result)
-//{
-//    char *last_point = strchr(last, '.');
-//    if (last_point)
-//    {
-//        size_t p_fraction_len = strlen(last) - (last_point - last) - 1;
-//        char* ten_times = (char*)calloc(p_fraction_len + 2, sizeof(char));
-//        ten_times[0] = '1';
-//        memset(ten_times + 1, 0, p_fraction_len);
-//        char* temp_p = (char*)malloc(1);
-//        char* temp_l = (char*)malloc(1);
-//        multiply(previous, ten_times, &temp_p);
-//        multiply(last, ten_times, &temp_l);
-//        devide(temp_p, temp_l, fraction_len, result);
-//        return;
-//    }
-//    char* temp = malloc(2);
-//    memcpy(temp, previous, 1);
-//    temp[1] = 0;
-//    switch(compare(temp, last))
-//    {
-//    case 1:
-//    case 0:
-//
-//        break;
-//    case -1:
-//    }
-//}
+static void expand(const char *previous, const char *last, char **p, char **l);
 
 void devide(const char *previous, const char *last, size_t fraction_len, char **result) //求两个整数的余数和商
 {
+    if (*previous == '+')
+    {
+        devide(previous + 1, last, fraction_len, result);
+        return;
+    }
+    if (*last == '+')
+    {
+        devide(previous, last + 1, fraction_len, result);
+        return;
+    }
+    if (*last == '-' && *previous == '-')
+    {
+        devide(previous + 1, last + 1, fraction_len, result);
+        return;
+    }
+    if (*previous == '-')
+    {
+        (*result)[0] = '-';
+        devide(previous + 1, last, fraction_len, result);
+        return;
+    }
+    if (*last == '-')
+    {
+        (*result)[0] = '-';
+        devide(previous, last + 1, fraction_len, result);
+        return;
+    }
+
+    if (strchr(last, '.'))
+    {
+        char *p = (char *)malloc(1);
+        char *l = (char *)malloc(1);
+        expand(previous, last, p, l);
+        return;
+    }
     //previous被除数 last除数
     size_t pre_len = strlen(previous);
-    (*result) = (char *)realloc(*result, strlen(previous) + 1); //商
-    memset(*result, 0, strlen(previous) + 1);
+    (*result) = (char *)realloc(*result, pre_len + fraction_len + 3); //商
+    if ((*result)[0] != '-')
+        memset(*result, 0, pre_len + fraction_len + 3);
+    else
+        memset(*result + 1, 0, pre_len + fraction_len + 2);
     char *minus_result = (char *)calloc(1, 1); //减出来的结果
     char *temp_p = (char *)malloc(1);          //要除的被除数
-    const char* tail = previous;
-    size_t index = 0; //商的下标
+    const char *tail = previous;
+    size_t index = (*result)[0] == '-' ? 1 : 0; //商的下标
     while (*tail != '.' && *tail != 0)
     {
-        combine(minus_result, *tail, &temp_p);
+        combine(minus_result, *tail, &temp_p); //这边和下面不一样
         switch (compare(temp_p, last))
         {
-        case 0:
+        case 0: //相同商写1 减数结果为\0
             (*result)[index] = '1';
             minus_result = (char *)realloc(minus_result, 1);
             minus_result[0] = 0;
             break;
-        case 1:
+        case 1: //类似二分法
         {
+            _Bool big_flag = 0;
             char small = '0';
             char big = '9';
             char now[2];
-            now[0] = '5';
+            now[0] = '5'; //乘法用
             now[1] = 0;
             char *mul_result = (char *)malloc(1);
             while (!(*result)[index])
@@ -68,127 +79,144 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
                     (*result)[index] = now[0];
                     break;
                 case 1:
-                    if (big - small == 1 || big - small == 2)
-                        (*result)[index] = now[0];
                     big = now[0];
                     now[0] = (now[0] + small) / 2;
                     break;
                 case -1:
-                    if (big - small == 1 || big - small == 2)
+                    if (now[0] == '8')
+                    {
+                        minus(temp_p, mul_result, &minus_result);
+                        if (compare(minus_result, last) >= 0)
+                        {
+                            now[0] = '9';
+                            (*result)[index] = now[0];
+                            multiply(now, last, &mul_result);
+                            break;
+                        }
+                    }
+                    if (big - small <= 2)
                         (*result)[index] = now[0];
                     small = now[0];
-                    now[0] = (now[0] + big) / 2;
+                    now[0] = (now[0] + big + 1) / 2;
                     break;
                 }
             }
             minus(temp_p, mul_result, &minus_result);
-            temp_p = (char *)realloc(temp_p, strlen(minus_result) + 1);
-            memcpy(temp_p, minus_result, strlen(minus_result) + 1);
             break;
         }
         case -1:
-            if (index)
-            {
+            if ((*result)[0] == '-' ? index - 1 : index)
                 (*result)[index] = '0';
-            }
-            else
-            {
-                minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1);
-                memcpy(minus_result, temp_p, strlen(temp_p));
-                minus_result[strlen(temp_p)] = 0;
-            }
+            minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1);
+            memcpy(minus_result, temp_p, strlen(temp_p) + 1);
             break;
         }
         if ((*result)[index])
             index++;
         tail++;
     }
+
+    if (!index || ((*result)[0] == '-' && (*result)[1] == 0)) //没有结果加0
+    {
+        (*result)[index] = '0';
+        index++;
+    }
     if (!fraction_len)
         return;
+
     (*result)[index] = '.';
     index++;
-
-    tail++;
+    if (*tail == '.')
+        tail++;
     for (size_t i = 0; i < fraction_len; i++)
     {
-        if (tail - previous <= pre_len)
+        combine(minus_result, *tail == 0 ? '0' : *tail++, &temp_p); //没有就加'0'
+        switch (compare(temp_p, last))
         {
-        }
-        else
+        case 0:
+            (*result)[index] = '1';
+            minus_result = (char *)realloc(minus_result, 1);
+            minus_result[0] = 0;
+            break;
+        case 1:
         {
-            combine(minus_result, '0', &temp_p);
-            switch (compare(temp_p, last))
+            _Bool big_flag = 0;
+            char small = '0';
+            char big = '9';
+            char now[2];
+            now[0] = '5'; //乘法用
+            now[1] = 0;
+            char *mul_result = (char *)malloc(1);
+            while (!(*result)[index]) ///////////////////////////搞成0
             {
-            case 0:
-                (*result)[index] = '1';
-                minus_result = (char *)realloc(minus_result, 1);
-                minus_result[0] = 0;
-                break;
-            case 1:
-            {
-                char small = '0';
-                char big = '9';
-                char now[2];
-                now[0] = '5';
-                now[1] = 0;
-                char *mul_result = (char *)malloc(1);
-                while (!(*result)[index])///////////////////////////搞成0
+                multiply(now, last, &mul_result);
+                switch (compare(mul_result, temp_p))
                 {
-                    multiply(now, last, &mul_result);
-                    switch (compare(mul_result, temp_p))
+                case 0:
+                    (*result)[index] = now[0];
+                    break;
+                case 1:
+                    big = now[0];
+                    now[0] = (now[0] + small) / 2;
+                    break;
+                case -1:
+                    if (now[0] == '8')
                     {
-                    case 0:
-                        (*result)[index] = now[0];
-                        break;
-                    case 1:
-                        if (big - small == 1 || big - small == 2)
+                        minus(temp_p, mul_result, &minus_result);
+                        if (compare(minus_result, last) >= 0)
+                        {
+                            now[0] = '9';
                             (*result)[index] = now[0];
-                        big = now[0];
-                        now[0] = (now[0] + small) / 2;
-                        break;
-                    case -1:
-                        if (big - small == 1 || big - small == 2)
-                            (*result)[index] = now[0];
-                        small = now[0];
-                        now[0] = (now[0] + big) / 2;
-                        break;
+                            multiply(now, last, &mul_result);
+                            break;
+                        }
                     }
+                    if (big - small <= 2)
+                        (*result)[index] = now[0];
+                    small = now[0];
+                    now[0] = (now[0] + big + 1) / 2;
+                    break;
                 }
-                minus(temp_p, mul_result, &minus_result);
-                temp_p = (char *)realloc(temp_p, strlen(minus_result) + 1);
-                memcpy(temp_p, minus_result, strlen(minus_result) + 1);
-                break;
             }
-            case -1:
-                if (index)
-                {
-                    (*result)[index] = '0';
-                }
-                else
-                {
-                    minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1);
-                    memcpy(minus_result, temp_p, strlen(temp_p));
-                    minus_result[strlen(temp_p)] = 0;
-                }
-                break;
-            }
-            if ((*result)[index])
-                index++;
-            tail++;
+            minus(temp_p, mul_result, &minus_result);
+            break;
         }
+        case -1:
+            if (index)
+                (*result)[index] = '0';
+            minus_result = (char *)realloc(minus_result, strlen(temp_p) + 1);
+            memcpy(minus_result, temp_p, strlen(temp_p) + 1);
+            break;
+        }
+        if ((*result)[index])
+            index++;
     }
 }
 
 static void combine(const char *str, const char num, char **result)
 {
-    if (*str)
+    *result = (char *)realloc(*result, strlen(str) + 2);
+    memset(*result, 0, strlen(str) + 2);
+    if (*str == 0 || *str == '0')
     {
-        *result = (char *)realloc(*result, strlen(*result) + 2);
-        (*result)[strlen(*result) + 1] = 0;
-        (*result)[strlen(*result)] = num;
+        (*result)[0] = num;
         return;
     }
-    *result = (char *)realloc(*result, 2);
-    (*result)[0] = num;
-    (*result)[1] = 0;
+    memcpy(*result, str, strlen(str));
+    (*result)[strlen(str)] = num;
+}
+
+static void expand(const char *previous, const char *last, char **p, char **l)
+{
+    char *point = strchr(last, '.');
+    char *mul = (char *)calloc(strlen(last + 1), 1);
+    mul[0] = '1';
+    size_t i = 1;
+    while (*(++point) != 0)
+    {
+        mul[i] = '0';
+        i++;
+    }
+    multiply(previous, mul, p);
+    multiply(last, mul, l);
 }
