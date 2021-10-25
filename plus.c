@@ -52,7 +52,6 @@ void plus(const char *previous, const char *last, char **result)
         {
             size_t position = plus_fraction(pre_point, p_fraction_len, last_point, l_fraction_len, &carry, result);
             plus_int(previous, last, pre_point, last_point, &carry, result, &position);
-            reverse(result);
         }
     }
     else if (pre_point == NULL && last_point == NULL)
@@ -61,7 +60,6 @@ void plus(const char *previous, const char *last, char **result)
         if ((*result)[0] == '-')
             position = 1;
         plus_int(previous, last, previous + strlen(previous), last + strlen(last), &carry, result, &position);
-        reverse(result);
     }
     else if (!pre_point)
     {
@@ -69,7 +67,6 @@ void plus(const char *previous, const char *last, char **result)
         l_fraction_len = strlen(last) - l_int_len - 1;
         size_t position = plus_fraction(NULL, 0, last_point, l_fraction_len, &carry, result);
         plus_int(previous, last, previous + strlen(previous), last_point, &carry, result, &position);
-        reverse(result);
     }
     else if (!last_point)
     {
@@ -77,8 +74,9 @@ void plus(const char *previous, const char *last, char **result)
         p_fraction_len = strlen(previous) - p_int_len - 1;
         size_t position = plus_fraction(pre_point, p_fraction_len, NULL, 0, &carry, result);
         plus_int(previous, last, pre_point, last + strlen(last), &carry, result, &position);
-        reverse(result);
     }
+    reverse(result);
+    Del0(result);
 }
 
 void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,

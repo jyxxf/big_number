@@ -8,7 +8,7 @@ static void compare(char **result, const char *aim);
 int main(void)
 {
     char *result = (char *)calloc(1, 1);
-#if 0
+
     printf("\n plus\n");
     plus("2.035", "+6541.25", &result);
     compare(&result, "6543.285");
@@ -29,6 +29,10 @@ int main(void)
     compare(&result, "0.010101");
     plus("-2.01", "+65412589.220201456987452", &result);
     compare(&result, "65412587.210201456987452");
+    plus("+0", "-0", &result);
+    compare(&result, "0");
+    plus("+3.33", "0.07", &result);
+    compare(&result, "3.4");
 
     printf("\n minus\n");
     minus("36542.265", "36542.265", &result);
@@ -60,11 +64,11 @@ int main(void)
     multiply("123456789.98765432", "9876543.123456", &result);
     compare(&result, "1219326310196518.82533161172992");
     multiply("-3.0", "-4.441", &result);
-    compare(&result, "13.3230");
+    compare(&result, "13.323");
     multiply("-313.13", "4.442487671", &result);
     compare(&result, "-1391.07616442023");
     multiply("1.0", "+1.0", &result);
-    compare(&result, "1.00");
+    compare(&result, "1");
     multiply("-293324324548742", "91334534624242", &result);
     compare(&result, "-26790640676629473861183803564");
     multiply("3232187", "746.9876", &result);
@@ -74,14 +78,18 @@ int main(void)
     multiply("-3", "2", &result);
     compare(&result, "-6");
     multiply("3", "0.0", &result);
-    compare(&result, "0.0");
-    multiply("3.3", "1000", &result);
-    compare(&result, "3300");
+    compare(&result, "0");
     multiply("-3", "1000", &result);
     compare(&result, "-3000");
+    multiply("0.001", "1000", &result);
+    compare(&result, "1");
+    multiply("0", "800", &result);
+    compare(&result, "0");
+    multiply("-1.20", "5.0", &result);
+    compare(&result, "-6");
 
+#if 1
     printf("\n devide\n");
-
     devide("53", "52", 30, &result);
     compare(&result, "1.019230769230769230769230769230");
     devide("52", "-53", 30, &result);
@@ -101,7 +109,6 @@ int main(void)
     devide("0", "75435", 10, &result);
     compare(&result, "0.0000000000");
 
-
     devide("3.33", "4", 5, &result);
     compare(&result, "0.83250");
     devide("3.33", "4", 0, &result);
@@ -114,12 +121,19 @@ int main(void)
     compare(&result, "999.9615320664867107021464322520");
     devide("97723.89732390472209", "9678434352", 25, &result);
     compare(&result, "0.0000100970770446679289611");
+
     devide("0", "75435.43535", 10, &result);
     compare(&result, "0.0000000000");
-#endif
-    multiply("0.001", "1000", &result);
-    compare(&result, "1");
+    devide("234", "0.00001", 10, &result);
+    compare(&result, "23400000.0000000000");
+    devide("89734", "3.321", 0, &result);
+    compare(&result, "27020");
+    devide("453532465345624352", "53452345233.312312548675621", 24, &result);
+    compare(&result, "8484800.121791027392187393132871");
 
+    devide("45.543", "53433.3242876076", 14, &result);
+    compare(&result, "0.00085233326968");
+#endif
     free(result);
     return 0;
 }
@@ -167,31 +181,58 @@ void add_MinusSign(char **result) //向后挪一位，增加负号
     (*result)[0] = '-';
 }
 
-//0.001*100=
-void erase0(char **result, char calculate)
+void Del0(char **result)
 {
     if ((*result)[0] == '+' || (*result)[0] == '-')
     {
         char *temp = *result + 1;
-        erase0(&temp, calculate);
+        Del0(&temp);
+        if ((*result)[0] == '+')
+            memmove(*result, *result + 1, strlen(*result));
+        else if ((*result)[1] == '0' && (*result)[2] == 0)
+            memmove(*result, *result + 1, 2);
         return;
     }
-    if (calculate == '-') //反着的
+    //分为前导0 和 小数点后的零
+    size_t i = 0;
+    size_t length = strlen(*result);
+    while (1)
+        if ((*result)[i] == '0' && (*result)[i + 1] != 0 && (*result)[i + 1] != '.')
+            i++;
+        else
+            break;
+    if (i)
     {
-        size_t i = strlen(*result);
-        if (i == 1)
-            return;
-        if ((*result)[i - 2] == '.')
-            return;
-        while ((*result)[i - 1] == '0')
-        {
-            (*result)[i - 1] = (*result)[i];
-            (*result)[i] = 0;
-            i--;
-            
-        }
+        memmove(*result, *result + i, length - i);
+        for (size_t j = 0; j < i; j++)
+            (*result)[length - i + j] = 0;
     }
+    //清除小数点后的0
+    char *point = strchr(*result, '.');
+    if (!point)
+        return;
     else
     {
+        length = strlen(*result);
+        while ((*result)[length - 1] == '0')
+        {
+            (*result)[length - 1] = 0;
+            length--;
+        }
+        if ((*result)[length - 1] == '.')
+            (*result)[length - 1] = 0;
+    }
+}
+
+void Del0BehindPoint(char **result)
+{
+    char *point = strchr(*result, '.');
+    if (!point)
+        return;
+    size_t len = strlen(*result) - 1;
+    while ((*result)[len] == '0' || (*result)[len] == '.')
+    {
+        (*result)[len] = 0;
+        len--;
     }
 }

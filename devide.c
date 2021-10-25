@@ -35,9 +35,10 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
 
     if (strchr(last, '.'))
     {
-        char *p = (char *)malloc(1);
-        char *l = (char *)malloc(1);
-        expand(previous, last, p, l);
+        char *p = (char *)calloc(1, 1);
+        char *l = (char *)calloc(1, 1);
+        expand(previous, last, &p, &l);
+        devide(p, l, fraction_len, result);
         return;
     }
     //previous被除数 last除数
@@ -209,7 +210,7 @@ static void combine(const char *str, const char num, char **result)
 static void expand(const char *previous, const char *last, char **p, char **l)
 {
     char *point = strchr(last, '.');
-    char *mul = (char *)calloc(strlen(last + 1), 1);
+    char *mul = (char *)calloc(strlen(last) + 1, 1);
     mul[0] = '1';
     size_t i = 1;
     while (*(++point) != 0)
@@ -218,5 +219,7 @@ static void expand(const char *previous, const char *last, char **p, char **l)
         i++;
     }
     multiply(previous, mul, p);
+    Del0BehindPoint(p);
     multiply(last, mul, l);
+    Del0BehindPoint(l);
 }

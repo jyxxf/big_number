@@ -26,4 +26,5 @@ void minus(const char *previous, const char *last, char **result);
 void multiply(const char *previous, const char *last, char **result);
 void add_MinusSign(char **result);
 void devide(const char *previous, const char *last, size_t fraction_len, char **result);
-void erase0(char **result, char calculate);
+void Del0(char **result);
+void Del0BehindPoint(char **result);
