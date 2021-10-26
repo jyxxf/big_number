@@ -2,6 +2,7 @@
 extern char compare(const char *previous, const char *last);
 static void combine(const char *str, const char num, char **result);
 static void expand(const char *previous, const char *last, char **p, char **l);
+static char judge0(const char *str);
 
 void devide(const char *previous, const char *last, size_t fraction_len, char **result) //求两个整数的余数和商
 {
@@ -64,46 +65,7 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
             break;
         case 1: //类似二分法
         {
-            _Bool big_flag = 0;
-            char small = '0';
-            char big = '9';
-            char now[2];
-            now[0] = '5'; //乘法用
-            now[1] = 0;
-            char *mul_result = (char *)malloc(1);
-            while (!(*result)[index])
-            {
-                multiply(now, last, &mul_result);
-                switch (compare(mul_result, temp_p))
-                {
-                case 0:
-                    (*result)[index] = now[0];
-                    break;
-                case 1:
-                    big = now[0];
-                    now[0] = (now[0] + small) / 2;
-                    break;
-                case -1:
-                    if (now[0] == '8')
-                    {
-                        minus(temp_p, mul_result, &minus_result);
-                        if (compare(minus_result, last) >= 0)
-                        {
-                            now[0] = '9';
-                            (*result)[index] = now[0];
-                            multiply(now, last, &mul_result);
-                            break;
-                        }
-                    }
-                    if (big - small <= 2)
-                        (*result)[index] = now[0];
-                    small = now[0];
-                    now[0] = (now[0] + big + 1) / 2;
-                    break;
-                }
-            }
-            minus(temp_p, mul_result, &minus_result);
-            break;
+            Bisection();
         }
         case -1:
             if ((*result)[0] == '-' ? index - 1 : index)
@@ -141,46 +103,7 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
             break;
         case 1:
         {
-            _Bool big_flag = 0;
-            char small = '0';
-            char big = '9';
-            char now[2];
-            now[0] = '5'; //乘法用
-            now[1] = 0;
-            char *mul_result = (char *)malloc(1);
-            while (!(*result)[index]) ///////////////////////////搞成0
-            {
-                multiply(now, last, &mul_result);
-                switch (compare(mul_result, temp_p))
-                {
-                case 0:
-                    (*result)[index] = now[0];
-                    break;
-                case 1:
-                    big = now[0];
-                    now[0] = (now[0] + small) / 2;
-                    break;
-                case -1:
-                    if (now[0] == '8')
-                    {
-                        minus(temp_p, mul_result, &minus_result);
-                        if (compare(minus_result, last) >= 0)
-                        {
-                            now[0] = '9';
-                            (*result)[index] = now[0];
-                            multiply(now, last, &mul_result);
-                            break;
-                        }
-                    }
-                    if (big - small <= 2)
-                        (*result)[index] = now[0];
-                    small = now[0];
-                    now[0] = (now[0] + big + 1) / 2;
-                    break;
-                }
-            }
-            minus(temp_p, mul_result, &minus_result);
-            break;
+            Bisection();
         }
         case -1:
             if (index)
@@ -192,6 +115,8 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
         if ((*result)[index])
             index++;
     }
+    if (judge0(previous) && (*result)[0] == '-')
+        memmove(*result, *result + 1, strlen(*result));
 }
 
 static void combine(const char *str, const char num, char **result)
@@ -219,7 +144,17 @@ static void expand(const char *previous, const char *last, char **p, char **l)
         i++;
     }
     multiply(previous, mul, p);
-    Del0BehindPoint(p);
     multiply(last, mul, l);
-    Del0BehindPoint(l);
+}
+
+static char judge0(const char *str)
+{
+    if (str[0] == '-' || str[0] == '+')
+        judge0(str + 1);
+    for (size_t i = 0; str[i]; i++)
+    {
+        if (str[i] != '0' && str[i] != '.')
+            return 0;
+    }
+    return 1;
 }

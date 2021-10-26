@@ -97,42 +97,39 @@ int main(void)
     devide("43857629876489230856", "98765", 10, &result);
     compare(&result, "444060445263901.4919860274");
     devide("-1", "45342554365498765", 10, &result);
-    compare(&result, "-0.0000000000");
+    compare(&result, "-0.0000000000"); //不需要消除负号
     devide("1", "45342554365498765", 20, &result);
     compare(&result, "0.00000000000000002205");
     devide("44", "44", 10, &result);
     compare(&result, "1.0000000000");
     devide("44", "-44", 0, &result);
     compare(&result, "-1");
-    devide("4", "7", 20, &result);
+    devide("+4", "7", 20, &result);
     compare(&result, "0.57142857142857142857");
-    devide("0", "75435", 10, &result);
+    devide("-0", "-75435", 10, &result);
     compare(&result, "0.0000000000");
-
     devide("3.33", "4", 5, &result);
     compare(&result, "0.83250");
-    devide("3.33", "4", 0, &result);
-    compare(&result, "0");
-    devide("333.000", "333", 7, &result);
-    compare(&result, "1.0000000");
+    devide("-3.33", "+4", 0, &result);
+    compare(&result, "-0");
+    devide("+333.000", "-333", 7, &result);
+    compare(&result, "-1.0000000");
     devide("333.000", "333", 0, &result);
     compare(&result, "1");
     devide("2342345435345.234242352353", "2342435544", 28, &result);
     compare(&result, "999.9615320664867107021464322520");
-    devide("97723.89732390472209", "9678434352", 25, &result);
-    compare(&result, "0.0000100970770446679289611");
-
-    devide("0", "75435.43535", 10, &result);
+    devide("+97723.89732390472209", "-9678434352", 25, &result);
+    compare(&result, "-0.0000100970770446679289611");
+    devide("-0", "75435.43535", 10, &result);
     compare(&result, "0.0000000000");
-    devide("234", "0.00001", 10, &result);
-    compare(&result, "23400000.0000000000");
+    devide("-234", "0.00001", 10, &result);
+    compare(&result, "-23400000.0000000000");
     devide("89734", "3.321", 0, &result);
     compare(&result, "27020");
     devide("453532465345624352", "53452345233.312312548675621", 24, &result);
     compare(&result, "8484800.121791027392187393132871");
-
-    devide("45.543", "53433.3242876076", 14, &result);
-    compare(&result, "0.00085233326968");
+    devide("45.543", "-53433.3242876076", 14, &result);
+    compare(&result, "-0.00085233326968");
 #endif
     free(result);
     return 0;
@@ -150,7 +147,7 @@ static void compare(char **result, const char *aim) //比较完成后全部置0
             printf(" %s\n", *result);
             return;
         }
-    printf("OK\n");
+    printf(" OK\n");
     memset(*result, 0, i);
 }
 
@@ -221,18 +218,5 @@ void Del0(char **result)
         }
         if ((*result)[length - 1] == '.')
             (*result)[length - 1] = 0;
-    }
-}
-
-void Del0BehindPoint(char **result)
-{
-    char *point = strchr(*result, '.');
-    if (!point)
-        return;
-    size_t len = strlen(*result) - 1;
-    while ((*result)[len] == '0' || (*result)[len] == '.')
-    {
-        (*result)[len] = 0;
-        len--;
     }
 }

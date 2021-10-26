@@ -76,7 +76,7 @@ void multiply(const char *previous, const char *last, char **result)
     }
     else if (pre_point == NULL && l_point == NULL)
         ;
-    else if(strlen(*result)!=1)//其中某一个有小数点
+    else if (strlen(*result) != 1) //其中某一个有小数点
     {
         size_t position = pre_point == NULL ? strlen(last) - (l_point - last) - 1 : strlen(previous) - (pre_point - previous) - 1;
         add_point(result, position);
