@@ -40,6 +40,8 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
         char *l = (char *)calloc(1, 1);
         expand(previous, last, &p, &l);
         devide(p, l, fraction_len, result);
+        free(p);
+        free(l);
         return;
     }
     //previous被除数 last除数
@@ -115,6 +117,8 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
         if ((*result)[index])
             index++;
     }
+    free(minus_result);
+    free(temp_p);
     if (judge0(previous) && (*result)[0] == '-')
         memmove(*result, *result + 1, strlen(*result));
 }
