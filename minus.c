@@ -163,8 +163,13 @@ static void big_minus_small(const char *previous, const char *last, char **resul
         size_t times = strlen(last) - (last_point - last) - 1; //小数点后次数
         while (times--)
         {
-            (*result)[i] = 10 - (last_point[times + 1] - '0') - borrow + '0';
-            borrow = 1;
+            if ('0' - borrow < last_point[times + 1]) //要借位
+            {
+                (*result)[i] = '0' + 10 - borrow - last_point[times + 1];
+                borrow = 1;
+            }
+            else
+                (*result)[i] = '0';
             i++;
         }
         (*result)[i] = '.';

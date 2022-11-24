@@ -2,18 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include "head.h"
-
 static void compare(char **result, const char *aim);
+static void test_plus(void);
+static void test_minus(void);
+static void test_multiply(void);
+static void test_divide(void);
 
 int main(void)
 {
-    char *result = (char *)calloc(1, 1);
+    test_plus();
+    test_minus();
+    return 0;
+}
 
+static void test_plus(void)
+{
+    char *result = (char *)calloc(1, 1);
     printf("\n plus\n");
     plus("2.035", "+6541.25", &result);
     compare(&result, "6543.285");
-    plus("99.99", "9.9", &result);
-    compare(&result, "109.89");
     plus("5646545654654646462262489849494.262254598498494949",
          "8948948489449448494494949849.6526586489489498494944494894944989", &result);
     compare(&result, "5655494603144095910756984799343.9149132474474447984944494894944989");
@@ -21,8 +28,6 @@ int main(void)
     compare(&result, "9999955966");
     plus("556", "9999955410.01", &result);
     compare(&result, "9999955966.01");
-    plus("8484551.3221546", "3547", &result);
-    compare(&result, "8488098.3221546");
     plus("-669933", "-332.015", &result);
     compare(&result, "-670265.015");
     plus("2.010101", "-2.00", &result);
@@ -33,9 +38,20 @@ int main(void)
     compare(&result, "0");
     plus("+3.33", "0.07", &result);
     compare(&result, "3.4");
+    plus("+0.000", "-0.00", &result);
+    compare(&result, "0");
+    plus("2.23", "-2.23", &result);
+    compare(&result, "0");
+    free(result);
+}
 
+static void test_minus(void)
+{
+    char *result = (char *)calloc(1, 1);
     printf("\n minus\n");
     minus("36542.265", "36542.265", &result);
+    compare(&result, "0");
+    minus("0.00", "-0.000", &result);
     compare(&result, "0");
     minus("+8956412.0", "+1.013546874456321459874563214566", &result);
     compare(&result, "8956410.986453125543678540125436785434");
@@ -45,7 +61,7 @@ int main(void)
     compare(&result, "484.79");
     minus("65564653121214", "2654645131454645484", &result);
     compare(&result, "-2654579566801524270");
-    minus("999", "0", &result);
+    minus("999", "0.0", &result);
     compare(&result, "999");
     minus("523.01", "23", &result);
     compare(&result, "500.01");
@@ -57,7 +73,12 @@ int main(void)
     compare(&result, "-557.5655");
     minus("156", "160", &result);
     compare(&result, "-4");
+    free(result);
+}
 
+static void test_multiply(void)
+{
+    char *result = (char *)calloc(1, 1);
     printf("\n multiply\n");
     multiply("3.13", "4.441", &result);
     compare(&result, "13.90033");
@@ -87,8 +108,12 @@ int main(void)
     compare(&result, "0");
     multiply("-1.20", "5.0", &result);
     compare(&result, "-6");
+    free(result);
+}
 
-#if 1
+static void test_divide(void)
+{
+    char *result = (char *)calloc(1, 1);
     printf("\n devide\n");
     devide("53", "52", 30, &result);
     compare(&result, "1.019230769230769230769230769230");
@@ -130,9 +155,7 @@ int main(void)
     compare(&result, "8484800.121791027392187393132871");
     devide("45.543", "-53433.3242876076", 14, &result);
     compare(&result, "-0.00085233326968");
-#endif
     free(result);
-    return 0;
 }
 
 static void compare(char **result, const char *aim) //比较完成后全部置0
@@ -148,7 +171,6 @@ static void compare(char **result, const char *aim) //比较完成后全部置0
             return;
         }
     printf(" OK\n");
-    memset(*result, 0, i);
 }
 
 void reverse(char **result) //第一个是负号不翻转，其余逆序输出
