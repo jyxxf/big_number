@@ -2,7 +2,7 @@
 static void single_multiply_previous(const char *previous, const char last, char **result, size_t row);
 static void add_point(char **result, size_t fraction_len);
 static void lib_multiply(const char *previous, const char *last, char **result, char signal);
-static void add_signal(char **result, char signal);
+static void add_minus_signal(char **result, char signal);
 
 void multiply(const char *previous, const char *last, char **result)
 {
@@ -77,7 +77,8 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
         add_point(result, position);
     }
     Del0(result);
-    add_signal(result, signal);
+    if (signal == -1 && !((*result)[0] == '0' && (*result)[1] == 0)) //-0不用加负号
+        add_minus_signal(result, signal);
 }
 
 /**
@@ -137,13 +138,10 @@ static void add_point(char **result, size_t fraction_len)
     (*result)[i] = '.';
 }
 
-static void add_signal(char **result, char signal)
+static void add_minus_signal(char **result, char signal)
 {
-    if (signal == -1 && !((*result)[0] == '0' && (*result)[1] == 0))
-    {
-        *result = realloc(*result, strlen(*result) + 2);
-        (*result)[strlen(*result) + 1] = 0;
-        memmove(*result + 1, *result, strlen(*result));
-        (*result)[0] = '-';
-    }
+    *result = realloc(*result, strlen(*result) + 2);
+    (*result)[strlen(*result) + 1] = 0;
+    memmove(*result + 1, *result, strlen(*result));
+    (*result)[0] = '-';
 }

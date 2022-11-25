@@ -23,7 +23,6 @@ void devide(const char *previous, const char *last, size_t fraction_len, char **
 
 void lib_plus(const char *previous, const char *last, char **result, char signal);
 void reverse(char **result);
-void add_MinusSign(char **result);
 void Del0(char **result);
 
 #define Bisection()                                       \

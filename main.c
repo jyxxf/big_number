@@ -12,8 +12,8 @@ int main(void)
 {
     //test_plus();
     //test_minus();
-    //test_multiply();
-    test_divide();
+    test_multiply();
+    //test_divide();
     return 0;
 }
 
@@ -131,7 +131,7 @@ static void test_multiply(void)
     compare(&result, "-6");
     free(result);
 }
-
+#if 0
 static void test_divide(void)
 {
     char *result = (char *)calloc(1, 1);
@@ -178,7 +178,7 @@ static void test_divide(void)
     compare(&result, "-0.00085233326968");
     free(result);
 }
-
+#endif
 static void compare(char **result, const char *aim) //比较完成后全部置0
 {
     size_t i = 0;
@@ -211,14 +211,6 @@ void reverse(char **result) //第一个是负号不翻转，其余逆序输出
         (*result)[i] = (*result)[last - i - 1];
         (*result)[last - i - 1] = temp;
     }
-}
-
-void add_MinusSign(char **result) //向后挪一位，增加负号
-{
-    (*result) = (char *)realloc(*result, strlen(*result) + 2);
-    for (size_t i = strlen(*result); i > 0; i--)
-        (*result)[i] = (*result)[i - 1];
-    (*result)[0] = '-';
 }
 
 void Del0(char **result)
