@@ -10,8 +10,10 @@ static void test_divide(void);
 
 int main(void)
 {
-    test_plus();
-    test_minus();
+    //test_plus();
+    //test_minus();
+    //test_multiply();
+    test_divide();
     return 0;
 }
 
@@ -75,11 +77,36 @@ static void test_minus(void)
     compare(&result, "-4");
     free(result);
 }
-#if 0
+
 static void test_multiply(void)
 {
     char *result = (char *)calloc(1, 1);
     printf("\n multiply\n");
+    //测试0*0
+    multiply("0.000", "0", &result);
+    compare(&result, "0");
+    multiply("0", "-0", &result);
+    compare(&result, "0");
+    multiply("-0", "+0.000", &result);
+    compare(&result, "0");
+    multiply("-0.00", "-0.000", &result);
+    compare(&result, "0");
+    //测试其中一方为0
+    multiply("0.0000", "-0.334", &result);
+    compare(&result, "0");
+    multiply("-0", "22.334", &result);
+    compare(&result, "0");
+    multiply("-345.77", "-0", &result);
+    compare(&result, "0");
+    multiply("-34.7534", "+0.000", &result);
+    compare(&result, "0");
+    multiply("0", "+800", &result);
+    compare(&result, "0");
+    multiply("456", "-0", &result);
+    compare(&result, "0");
+
+    multiply("1.00000", "1.001", &result);
+    compare(&result, "1.001");
     multiply("3.13", "4.441", &result);
     compare(&result, "13.90033");
     multiply("123456789.98765432", "9876543.123456", &result);
@@ -90,22 +117,16 @@ static void test_multiply(void)
     compare(&result, "-1391.07616442023");
     multiply("1.0", "+1.0", &result);
     compare(&result, "1");
-    multiply("-293324324548742", "91334534624242", &result);
+    multiply("-293324324548742", "91334534624242.00", &result);
     compare(&result, "-26790640676629473861183803564");
     multiply("3232187", "746.9876", &result);
     compare(&result, "2414403609.8812");
     multiply("+323.218723", "746", &result);
     compare(&result, "241121.167358");
-    multiply("-3", "2", &result);
-    compare(&result, "-6");
-    multiply("3", "0.0", &result);
-    compare(&result, "0");
     multiply("-3", "1000", &result);
     compare(&result, "-3000");
     multiply("0.001", "1000", &result);
     compare(&result, "1");
-    multiply("0", "800", &result);
-    compare(&result, "0");
     multiply("-1.20", "5.0", &result);
     compare(&result, "-6");
     free(result);
@@ -157,7 +178,7 @@ static void test_divide(void)
     compare(&result, "-0.00085233326968");
     free(result);
 }
-#endif
+
 static void compare(char **result, const char *aim) //比较完成后全部置0
 {
     size_t i = 0;
@@ -216,10 +237,12 @@ void Del0(char **result)
     size_t i = 0;
     size_t length = strlen(*result);
     while (1)
+    {
         if ((*result)[i] == '0' && (*result)[i + 1] != 0 && (*result)[i + 1] != '.')
             i++;
         else
             break;
+    }
     if (i)
     {
         memmove(*result, *result + i, length - i);

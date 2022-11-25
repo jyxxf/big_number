@@ -1,10 +1,11 @@
 #include "head.h"
-static void multip(const char *previous, const char last, char **result, size_t row);
+static void single_multiply_previous(const char *previous, const char last, char **result, size_t row);
 static void add_point(char **result, size_t fraction_len);
+static void lib_multiply(const char *previous, const char *last, char **result, char signal);
+static void add_signal(char **result, char signal);
 
 void multiply(const char *previous, const char *last, char **result)
 {
-    char Minus_Sign = 0;
     if (*previous == '+')
     {
         multiply(previous + 1, last, result);
@@ -22,31 +23,27 @@ void multiply(const char *previous, const char *last, char **result)
     }
     if (*previous == '-')
     {
-        (*result)[0] = '-';
-        multiply(previous + 1, last, result);
+        lib_multiply(previous + 1, last, result, -1);
         return;
     }
     if (*last == '-')
     {
-        (*result)[0] = '-';
-        multiply(previous, last + 1, result);
+        lib_multiply(previous, last + 1, result, -1);
         return;
     }
-    if ((*result)[0] == '-')
-    {
-        Minus_Sign = 1;
-        (*result)[0] = 0;
-    }
+    lib_multiply(previous, last, result, 1);
+}
 
-    char **temp = (char **)malloc(sizeof(char *) * strlen(last));
+static void lib_multiply(const char *previous, const char *last, char **result, char signal)
+{
+    size_t l_len = strlen(last); //减不减1再说
     size_t j = 0;
-    size_t l_len = strlen(last);
-    for (size_t i = 0; i < strlen(last); i++)
+    char **temp = (char **)malloc(sizeof(char *) * l_len);
+    for (size_t i = 0; i < l_len; i++)
     {
         if (last[l_len - i - 1] != '.')
         {
-            temp[j] = (char *)malloc(1);
-            multip(previous, last[l_len - i - 1], &temp[j], j);
+            single_multiply_previous(previous, last[l_len - i - 1], &temp[j], j);
             j++;
         }
     }
@@ -55,8 +52,6 @@ void multiply(const char *previous, const char *last, char **result)
     plus_temp[1] = 0;
     while (j--)
     {
-        if (j == 0 && Minus_Sign)
-            (*result)[0] = '-';
         plus(temp[j], plus_temp, result);
         plus_temp = (char *)realloc(plus_temp, strlen(*result) + 1);
         memcpy(plus_temp, *result, strlen(*result));
@@ -76,20 +71,29 @@ void multiply(const char *previous, const char *last, char **result)
     }
     else if (pre_point == NULL && l_point == NULL)
         ;
-    else if (strlen(*result) != 1) //其中某一个有小数点
+    else //其中某一个有小数点
     {
         size_t position = pre_point == NULL ? strlen(last) - (l_point - last) - 1 : strlen(previous) - (pre_point - previous) - 1;
         add_point(result, position);
     }
     Del0(result);
+    add_signal(result, signal);
 }
 
-static void multip(const char *previous, const char last, char **result, size_t row)
+/**
+ * @brief
+ *
+ * @param previous
+ * @param last
+ * @param result
+ * @param row 得出的结果在第几行，第0行无需处理 第一行要*10 第二行*100
+ */
+static void single_multiply_previous(const char *previous, const char last, char **result, size_t row)
 {
     size_t i = 0;
     u8 carry = 0;
     size_t pre_len = strlen(previous);
-    *result = realloc(*result, strlen(previous) + row + 2);
+    *result = malloc(strlen(previous) + row + 2);
     memset(*result, 0, strlen(previous) + row + 2);
     while (row--)
     {
@@ -115,19 +119,31 @@ static void multip(const char *previous, const char last, char **result, size_t 
     if (carry)
         (*result)[i] = carry + '0';
     reverse(result);
+    Del0(result);
 }
 
 static void add_point(char **result, size_t fraction_len)
 {
+    if (fraction_len >= strlen(*result))
+        return;
     *result = (char *)realloc(*result, strlen(*result) + 2);
     (*result)[strlen(*result) + 1] = 0; //添加字符串结束符
-    size_t i = 0;
-    while ((*result)[i])
-        i++;
+    size_t i = strlen(*result);
     while (fraction_len--)
     {
         (*result)[i] = (*result)[i - 1];
         i--;
     }
     (*result)[i] = '.';
+}
+
+static void add_signal(char **result, char signal)
+{
+    if (signal == -1 && !((*result)[0] == '0' && (*result)[1] == 0))
+    {
+        *result = realloc(*result, strlen(*result) + 2);
+        (*result)[strlen(*result) + 1] = 0;
+        memmove(*result + 1, *result, strlen(*result));
+        (*result)[0] = '-';
+    }
 }
