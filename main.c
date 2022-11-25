@@ -75,7 +75,7 @@ static void test_minus(void)
     compare(&result, "-4");
     free(result);
 }
-
+#if 0
 static void test_multiply(void)
 {
     char *result = (char *)calloc(1, 1);
@@ -157,7 +157,7 @@ static void test_divide(void)
     compare(&result, "-0.00085233326968");
     free(result);
 }
-
+#endif
 static void compare(char **result, const char *aim) //比较完成后全部置0
 {
     size_t i = 0;

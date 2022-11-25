@@ -1,5 +1,8 @@
 #include "head.h"
-
+size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result);
+void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
+              u8 *carry, char **result, size_t position);
+              
 void plus(const char *previous, const char *last, char **result)
 {
     if (*previous == '+')
@@ -15,7 +18,7 @@ void plus(const char *previous, const char *last, char **result)
     if (*previous == '-' && *last == '-') //两个都是负号，将结果第一个也置为负号
     {
         (*result)[0] = '-';
-        plus(previous + 1, last + 1, result);
+        lib_plus(previous + 1, last + 1, result, -1);
         return;
     }
     if (*previous == '-')
@@ -28,61 +31,81 @@ void plus(const char *previous, const char *last, char **result)
         minus(previous, last + 1, result);
         return;
     }
+    lib_plus(previous, last, result, 1);
+}
+
+void lib_plus(const char *previous, const char *last, char **result, char signal)
+{
     u8 carry = 0;
 
     size_t length = max(strlen(previous), strlen(last));
-    size_t p_int_len;
-    size_t l_int_len;
-    size_t p_fraction_len;
-    size_t l_fraction_len;
+    size_t pre_int_len;
+    size_t last_int_len;
+    size_t pre_fraction_len;
+    size_t last_fraction_len;
     length = length * 2 + 1;
     *result = (char *)realloc(*result, length);
-    (*result)[0] == '-' ? memset(*result + 1, 0, length - 1) : memset(*result, 0, length); //"-" + "-" 或者"-" - "+"
+    memset(*result, 0, length);
 
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    if (pre_point && last_point) //按小数点分为四种情况
+    //按小数点分为四种情况
+    if (pre_point && last_point) //都有小数点
     {
-        p_int_len = pre_point - previous;
-        l_int_len = last_point - last;
-        p_fraction_len = strlen(previous) - p_int_len - 1;
-        l_fraction_len = strlen(last) - l_int_len - 1;
+        pre_int_len = pre_point - previous;
+        last_int_len = last_point - last;
+        pre_fraction_len = strlen(previous) - pre_int_len - 1;
+        last_fraction_len = strlen(last) - last_int_len - 1;
 
         if (pre_point != NULL && last_point != NULL)
         {
-            size_t position = plus_fraction(pre_point, p_fraction_len, last_point, l_fraction_len, &carry, result);
-            plus_int(previous, last, pre_point, last_point, &carry, result, &position);
+            plus_int(previous, last, pre_point, last_point, &carry, result,
+                     plus_fraction(pre_point, pre_fraction_len, last_point, last_fraction_len, &carry, result));
         }
     }
     else if (pre_point == NULL && last_point == NULL)
     {
-        size_t position = 0;
-        if ((*result)[0] == '-')
-            position = 1;
-        plus_int(previous, last, previous + strlen(previous), last + strlen(last), &carry, result, &position);
+        plus_int(previous, last, previous + strlen(previous), last + strlen(last), &carry, result, 0);
     }
     else if (!pre_point)
     {
-        l_int_len = last_point - last;
-        l_fraction_len = strlen(last) - l_int_len - 1;
-        size_t position = plus_fraction(NULL, 0, last_point, l_fraction_len, &carry, result);
-        plus_int(previous, last, previous + strlen(previous), last_point, &carry, result, &position);
+        last_int_len = last_point - last;
+        last_fraction_len = strlen(last) - last_int_len - 1;
+        plus_int(previous, last, previous + strlen(previous), last_point, &carry, result,
+                 plus_fraction(NULL, 0, last_point, last_fraction_len, &carry, result));
     }
     else if (!last_point)
     {
-        p_int_len = pre_point - previous;
-        p_fraction_len = strlen(previous) - p_int_len - 1;
-        size_t position = plus_fraction(pre_point, p_fraction_len, NULL, 0, &carry, result);
-        plus_int(previous, last, pre_point, last + strlen(last), &carry, result, &position);
+        pre_int_len = pre_point - previous;
+        pre_fraction_len = strlen(previous) - pre_int_len - 1;
+        plus_int(previous, last, pre_point, last + strlen(last), &carry, result,
+                 plus_fraction(pre_point, pre_fraction_len, NULL, 0, &carry, result));
+    }
+    if (signal == -1)
+    {
+        char *result_tail = strchr(*result, 0);
+        *result_tail = '-';
+        *(result_tail + 1) = 0;
     }
     reverse(result);
     Del0(result);
 }
 
+/**
+ * @brief
+ *
+ * @param previous
+ * @param last
+ * @param pre_point
+ * @param last_point
+ * @param carry
+ * @param result
+ * @param position
+ */
 void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
-              u8 *carry, char **result, size_t *position)
+              u8 *carry, char **result, size_t position)
 {
-    size_t i = *position;
+    size_t i = position;
     while (last != last_point && previous != pre_point)
     {
         if ((*(last_point - 1) + *(pre_point - 1) - '0' - '0' + *carry) >= 10)
@@ -100,6 +123,7 @@ void plus_int(const char *previous, const char *last, const char *pre_point, con
         i++;
     }
     if (last == last_point)
+    {
         while (pre_point != previous)
         {
             if (*(pre_point - 1) + *carry - '0' >= 10)
@@ -115,7 +139,9 @@ void plus_int(const char *previous, const char *last, const char *pre_point, con
             i++;
             pre_point--;
         }
+    }
     if (previous == pre_point)
+    {
         while (last != last_point)
         {
             if (*(last_point - 1) + *carry - '0' >= 10)
@@ -131,19 +157,29 @@ void plus_int(const char *previous, const char *last, const char *pre_point, con
             i++;
             last_point--;
         }
+    }
     if (*carry)
         (*result)[i] = '1';
 }
 
+/**
+ * @brief 小数部分相加
+ *
+ * @param pre_point 小数点指针
+ * @param p_len 长度
+ * @param last_point
+ * @param l_len
+ * @param carry 进位
+ * @param result
+ * @return size_t 小数和小数点加起来长度
+ */
 size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result)
 {
     size_t i = 0;
-    if (*(result)[0] == '-')
-        i++;
     while (p_len != l_len)
         move();
     while (p_len)
-    { //temp
+    { // temp
         if ((*(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry) >= 10)
         {
             (*result)[i] = *(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry - 10 + '0';

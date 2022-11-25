@@ -9,6 +9,9 @@ typedef unsigned char u8;
 #endif
 
 void plus(const char *previous, const char *last, char **result);
+void minus(const char *previous, const char *last, char **result);
+void multiply(const char *previous, const char *last, char **result);
+void devide(const char *previous, const char *last, size_t fraction_len, char **result);
 
 #define move()                                                                          \
     do                                                                                  \
@@ -18,14 +21,9 @@ void plus(const char *previous, const char *last, char **result);
         p_len > l_len ? p_len-- : l_len--;                                              \
     } while (0)
 
-size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result);
-void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
-              u8 *carry, char **result, size_t *position);
+void lib_plus(const char *previous, const char *last, char **result, char signal);
 void reverse(char **result);
-void minus(const char *previous, const char *last, char **result);
-void multiply(const char *previous, const char *last, char **result);
 void add_MinusSign(char **result);
-void devide(const char *previous, const char *last, size_t fraction_len, char **result);
 void Del0(char **result);
 
 #define Bisection()                                       \

@@ -17,7 +17,7 @@ void minus(const char *previous, const char *last, char **result)
     else if (*previous == '-')
     {
         (*result)[0] = '-';
-        plus(previous + 1, last, result);
+        lib_plus(previous + 1, last, result, -1);
         return;
     }
     if (*previous == '+')
