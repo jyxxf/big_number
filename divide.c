@@ -3,48 +3,51 @@ extern char compare(const char *previous, const char *last);
 static void combine(const char *str, const char num, char **result);
 static void expand(const char *previous, const char *last, char **p, char **l);
 static char judge0(const char *str);
+static void lib_divide(const char *previous, const char *last, size_t fraction_len, char **result, char signal);
 
-void devide(const char *previous, const char *last, size_t fraction_len, char **result) //求两个整数的余数和商
+void divide(const char *previous, const char *last, size_t fraction_len, char **result) //求两个整数的余数和商
 {
     if (*previous == '+')
     {
-        devide(previous + 1, last, fraction_len, result);
+        divide(previous + 1, last, fraction_len, result);
         return;
     }
     if (*last == '+')
     {
-        devide(previous, last + 1, fraction_len, result);
+        divide(previous, last + 1, fraction_len, result);
         return;
     }
     if (*last == '-' && *previous == '-')
     {
-        devide(previous + 1, last + 1, fraction_len, result);
+        divide(previous + 1, last + 1, fraction_len, result);
         return;
     }
     if (*previous == '-')
     {
-        (*result)[0] = '-';
-        devide(previous + 1, last, fraction_len, result);
+        lib_divide(previous + 1, last, fraction_len, result, -1);
         return;
     }
     if (*last == '-')
     {
-        (*result)[0] = '-';
-        devide(previous, last + 1, fraction_len, result);
+        lib_divide(previous, last + 1, fraction_len, result, -1);
         return;
     }
+    lib_divide(previous, last, fraction_len, result, 1);
+}
 
+static void lib_divide(const char *previous, const char *last, size_t fraction_len, char **result, char signal)
+{
     if (strchr(last, '.'))
     {
         char *p = (char *)calloc(1, 1);
         char *l = (char *)calloc(1, 1);
         expand(previous, last, &p, &l);
-        devide(p, l, fraction_len, result);
+        divide(p, l, fraction_len, result);
         free(p);
         free(l);
         return;
     }
-    //previous被除数 last除数
+    // previous被除数 last除数
     size_t pre_len = strlen(previous);
     (*result) = (char *)realloc(*result, pre_len + fraction_len + 3); //商
     if ((*result)[0] != '-')

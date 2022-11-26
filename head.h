@@ -11,7 +11,7 @@ typedef unsigned char u8;
 void plus(const char *previous, const char *last, char **result);
 void minus(const char *previous, const char *last, char **result);
 void multiply(const char *previous, const char *last, char **result);
-void devide(const char *previous, const char *last, size_t fraction_len, char **result);
+void divide(const char *previous, const char *last, size_t fraction_len, char **result);
 
 #define move()                                                                          \
     do                                                                                  \

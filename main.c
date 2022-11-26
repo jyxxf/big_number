@@ -12,8 +12,8 @@ int main(void)
 {
     //test_plus();
     //test_minus();
-    test_multiply();
-    //test_divide();
+    //test_multiply();
+    test_divide();
     return 0;
 }
 
@@ -131,54 +131,54 @@ static void test_multiply(void)
     compare(&result, "-6");
     free(result);
 }
-#if 0
+
 static void test_divide(void)
 {
     char *result = (char *)calloc(1, 1);
-    printf("\n devide\n");
-    devide("53", "52", 30, &result);
+    printf("\n divide\n");
+    divide("53", "52", 30, &result);
     compare(&result, "1.019230769230769230769230769230");
-    devide("52", "-53", 30, &result);
+    divide("52", "-53", 30, &result);
     compare(&result, "-0.981132075471698113207547169811");
-    devide("43857629876489230856", "98765", 10, &result);
+    divide("43857629876489230856", "98765", 10, &result);
     compare(&result, "444060445263901.4919860274");
-    devide("-1", "45342554365498765", 10, &result);
+    divide("-1", "45342554365498765", 10, &result);
     compare(&result, "-0.0000000000"); //不需要消除负号
-    devide("1", "45342554365498765", 20, &result);
+    divide("1", "45342554365498765", 20, &result);
     compare(&result, "0.00000000000000002205");
-    devide("44", "44", 10, &result);
+    divide("44", "44", 10, &result);
     compare(&result, "1.0000000000");
-    devide("44", "-44", 0, &result);
+    divide("44", "-44", 0, &result);
     compare(&result, "-1");
-    devide("+4", "7", 20, &result);
+    divide("+4", "7", 20, &result);
     compare(&result, "0.57142857142857142857");
-    devide("-0", "-75435", 10, &result);
+    divide("-0", "-75435", 10, &result);
     compare(&result, "0.0000000000");
-    devide("3.33", "4", 5, &result);
+    divide("3.33", "4", 5, &result);
     compare(&result, "0.83250");
-    devide("-3.33", "+4", 0, &result);
+    divide("-3.33", "+4", 0, &result);
     compare(&result, "-0");
-    devide("+333.000", "-333", 7, &result);
+    divide("+333.000", "-333", 7, &result);
     compare(&result, "-1.0000000");
-    devide("333.000", "333", 0, &result);
+    divide("333.000", "333", 0, &result);
     compare(&result, "1");
-    devide("2342345435345.234242352353", "2342435544", 28, &result);
+    divide("2342345435345.234242352353", "2342435544", 28, &result);
     compare(&result, "999.9615320664867107021464322520");
-    devide("+97723.89732390472209", "-9678434352", 25, &result);
+    divide("+97723.89732390472209", "-9678434352", 25, &result);
     compare(&result, "-0.0000100970770446679289611");
-    devide("-0", "75435.43535", 10, &result);
+    divide("-0", "75435.43535", 10, &result);
     compare(&result, "0.0000000000");
-    devide("-234", "0.00001", 10, &result);
+    divide("-234", "0.00001", 10, &result);
     compare(&result, "-23400000.0000000000");
-    devide("89734", "3.321", 0, &result);
+    divide("89734", "3.321", 0, &result);
     compare(&result, "27020");
-    devide("453532465345624352", "53452345233.312312548675621", 24, &result);
+    divide("453532465345624352", "53452345233.312312548675621", 24, &result);
     compare(&result, "8484800.121791027392187393132871");
-    devide("45.543", "-53433.3242876076", 14, &result);
+    divide("45.543", "-53433.3242876076", 14, &result);
     compare(&result, "-0.00085233326968");
     free(result);
 }
-#endif
+
 static void compare(char **result, const char *aim) //比较完成后全部置0
 {
     size_t i = 0;
