@@ -4,6 +4,15 @@ static void big_minus_small(const char *previous, const char *last, char **resul
 
 void minus(const char *previous, const char *last, char **result)
 {
+    if (*result == previous || *result == last) //结果和来源共用
+    {
+        char* temp_result = malloc(1);
+        minus(previous, last, &temp_result);
+        *result = realloc(*result, strlen(temp_result) + 1);
+        memcpy(*result, temp_result, strlen(temp_result) + 1);
+        free(temp_result);
+        return;
+    }
     if (*previous == '-' && *last == '-')
     {
         minus(last + 1, previous + 1, result);
@@ -48,7 +57,7 @@ void minus(const char *previous, const char *last, char **result)
         (*result)[1] = 0;
     }
     reverse(result);
-    Del0(result);
+    delete_0(result);
 }
 
 static void big_minus_small(const char *previous, const char *last, char **result)
@@ -64,7 +73,6 @@ static void big_minus_small(const char *previous, const char *last, char **resul
         size_t index = max(pre_fraction_len, l_fraction_len);
         (*result) = (char *)realloc(*result, max(pre_fraction_len, l_fraction_len) + 3 + pre_point - previous);
         memset(*result, 0, max(pre_fraction_len, l_fraction_len) + 3 + pre_point - previous);
-        u8 temp;
         while (index)
         {
             if (pre_fraction_len < index)
@@ -271,7 +279,7 @@ char compare_nonnegative(const char *previous, const char *last) //前面大则�
             return 0;
         }
     }
-    if (last_point == NULL && pre_point == NULL)
+    else if (last_point == NULL && pre_point == NULL)
     {
         if (strlen(previous) > strlen(last))
             return 1;
@@ -286,7 +294,7 @@ char compare_nonnegative(const char *previous, const char *last) //前面大则�
             return 0;
         }
     }
-    if (pre_point == NULL)
+    else if (pre_point == NULL)
     {
         if (strlen(previous) > strlen(last) - strlen(last_point))
             return 1;
@@ -311,7 +319,7 @@ char compare_nonnegative(const char *previous, const char *last) //前面大则�
             }
         }
     }
-    if (last_point == NULL)
+    else if (last_point == NULL)
     {
         if (strlen(last) > strlen(previous) - strlen(pre_point))
             return -1;

@@ -2,9 +2,18 @@
 size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result);
 void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
               u8 *carry, char **result, size_t position);
-              
+
 void plus(const char *previous, const char *last, char **result)
 {
+    if (*result == previous || *result == last) //结果和来源共用
+    {
+        char *temp_result = malloc(1);
+        plus(previous, last, &temp_result);
+        *result = realloc(*result, strlen(temp_result) + 1);
+        memcpy(*result, temp_result, strlen(temp_result) + 1);
+        free(temp_result);
+        return;
+    }
     if (*previous == '+')
     {
         plus(previous + 1, last, result);
@@ -88,7 +97,7 @@ void lib_plus(const char *previous, const char *last, char **result, char signal
         *(result_tail + 1) = 0;
     }
     reverse(result);
-    Del0(result);
+    delete_0(result);
 }
 
 /**

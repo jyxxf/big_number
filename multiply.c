@@ -6,6 +6,15 @@ static void add_minus_signal(char **result, char signal);
 
 void multiply(const char *previous, const char *last, char **result)
 {
+    if (*result == previous || *result == last) //结果和来源共用
+    {
+        char* temp_result = malloc(1);
+        multiply(previous, last, &temp_result);
+        *result = realloc(*result, strlen(temp_result) + 1);
+        memcpy(*result, temp_result, strlen(temp_result) + 1);
+        free(temp_result);
+        return;
+    }
     if (*previous == '+')
     {
         multiply(previous + 1, last, result);
@@ -76,7 +85,7 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
         size_t position = (pre_point == NULL) ? (strlen(last) - (l_point - last) - 1) : (strlen(previous) - (pre_point - previous) - 1);
         add_point(result, position);
     }
-    Del0(result);
+    delete_0(result);
     if (signal == -1 && !((*result)[0] == '0' && (*result)[1] == 0)) //-0不用加负号
         add_minus_signal(result, signal);
 }
@@ -120,7 +129,7 @@ static void single_multiply_previous(const char *previous, const char last, char
     if (carry)
         (*result)[i] = carry + '0';
     reverse(result);
-    Del0(result);
+    delete_0(result);
 }
 
 static void add_point(char **result, size_t fraction_len)
@@ -133,6 +142,7 @@ static void add_point(char **result, size_t fraction_len)
         memset(*result, '0', fraction_len + 3);
         (*result)[1] = '.';
         memcpy(*result + fraction_len + 3 - strlen(temp) - 1, temp, strlen(temp) + 1);
+        free(temp);
         return;
     }
     *result = (char *)realloc(*result, strlen(*result) + 2);

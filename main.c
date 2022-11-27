@@ -61,6 +61,16 @@ static void test_plus(void)
     compare_result(result, "0");
     plus("2.23", "-2.23", &result);
     compare_result(result, "0");
+
+    result = realloc(result, strlen("3458374.2344532") + 1);
+    memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
+    plus(result, "-435254523555.235432888400", &result);
+    compare_result(result, "-435251065181.0009796884");
+
+    result = realloc(result, strlen("325345.98") + 1);
+    memcpy(result, "325345.98", strlen("325345.98") + 1);
+    plus(result, result, &result);
+    compare_result(result, "650691.96");
     free(result);
 }
 
@@ -99,6 +109,16 @@ static void test_minus(void)
     compare_result(result, "-557.5655");
     minus("156", "160", &result);
     compare_result(result, "-4");
+
+    result = realloc(result, strlen("3458374.2344532") + 1);
+    memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
+    minus(result, "-435254523555.235432888400", &result);
+    compare_result(result, "435257981929.4698860884");
+
+    result = realloc(result, strlen("-325345.98") + 1);
+    memcpy(result, "-325345.98", strlen("-325345.98") + 1);
+    minus(result, result, &result);
+    compare_result(result, "0");
     free(result);
 }
 
@@ -154,6 +174,16 @@ static void test_multiply(void)
     compare_result(result, "-0.00000001");
     multiply("-1.20", "5.0", &result);
     compare_result(result, "-6");
+
+    result = realloc(result, strlen("3458374.2344532") + 1);
+    memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
+    multiply(result, "-435254523555.235432888400", &result);
+    compare_result(result, "-1505273029692629646.98031145567062288");
+
+    result = realloc(result, strlen("-325345.98") + 1);
+    memcpy(result, "-325345.98", strlen("-325345.98") + 1);
+    multiply(result, result, &result);
+    compare_result(result, "105850006702.1604");
     free(result);
 }
 
@@ -219,6 +249,16 @@ static void test_divide(void)
     //小数除以小数
     divide("45.543", "-53433.3242876076", 39, &result);
     compare_result(result, "-0.000852333269681341065489332675114320114");
+
+    result = realloc(result, strlen("3458374.2344532") + 1);
+    memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
+    divide(result, "-435254523555.235432888400", 20, &result);
+    compare_result(result, "-0.00000794563651218278");
+
+    result = realloc(result, strlen("-325345.98") + 1);
+    memcpy(result, "-325345.98", strlen("-325345.98") + 1);
+    divide(result, result, 10, &result);
+    compare_result(result, "1.0000000000");
     free(result);
 }
 
@@ -241,12 +281,12 @@ void reverse(char **result) //第一个是负号不翻转，其余逆序输出
     }
 }
 
-void Del0(char **result)
+void delete_0(char **result)
 {
     if ((*result)[0] == '+' || (*result)[0] == '-')
     {
         char *temp = *result + 1;
-        Del0(&temp);
+        delete_0(&temp);
         if ((*result)[0] == '+')
             memmove(*result, *result + 1, strlen(*result));
         else if ((*result)[1] == '0' && (*result)[2] == 0)

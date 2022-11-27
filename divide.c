@@ -4,12 +4,20 @@ static void lib_divide(const char *previous, const char *last, size_t fraction_l
 static void erase_last_point(const char *previous, const char *last, char **process_previous, char **process_last);
 static void add_previous_point(const char *previous, char **has_point_previous);
 static void lib_div(const char *previous, const char *last, size_t fraction_len, char **result, char signal);
-static void combine_tail_point_to_temp(const char *tail, char point, char **temp);
 static void get_minus_result(const char *tail, const char *last, char *quotient);
 static void add_previous_0(const char *previous, char **previous_has_add_0, size_t fraction_len);
 
 void divide(const char *previous, const char *last, size_t fraction_len, char **result) //求两个整数的余数和商
 {
+    if (*result == previous || *result == last) //结果和来源共用
+    {
+        char* temp_result = malloc(1);
+        divide(previous, last, fraction_len, &temp_result);
+        *result = realloc(*result, strlen(temp_result) + 1);
+        memcpy(*result, temp_result, strlen(temp_result) + 1);
+        free(temp_result);
+        return;
+    }
     if (*previous == '+')
     {
         divide(previous + 1, last, fraction_len, result);
