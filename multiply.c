@@ -73,7 +73,7 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
         ;
     else //其中某一个有小数点
     {
-        size_t position = pre_point == NULL ? strlen(last) - (l_point - last) - 1 : strlen(previous) - (pre_point - previous) - 1;
+        size_t position = (pre_point == NULL) ? (strlen(last) - (l_point - last) - 1) : (strlen(previous) - (pre_point - previous) - 1);
         add_point(result, position);
     }
     Del0(result);
@@ -126,7 +126,15 @@ static void single_multiply_previous(const char *previous, const char last, char
 static void add_point(char **result, size_t fraction_len)
 {
     if (fraction_len >= strlen(*result))
+    {
+        char *temp = malloc(strlen(*result) + 1);
+        memcpy(temp, *result, strlen(*result) + 1);
+        *result = realloc(*result, fraction_len + 3);
+        memset(*result, '0', fraction_len + 3);
+        (*result)[1] = '.';
+        memcpy(*result + fraction_len + 3 - strlen(temp) - 1, temp, strlen(temp) + 1);
         return;
+    }
     *result = (char *)realloc(*result, strlen(*result) + 2);
     (*result)[strlen(*result) + 1] = 0; //添加字符串结束符
     size_t i = strlen(*result);

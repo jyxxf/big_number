@@ -1,5 +1,5 @@
 #include "head.h"
-char compare(const char *previous, const char *last);
+char compare_nonnegative(const char *previous, const char *last);
 static void big_minus_small(const char *previous, const char *last, char **result);
 
 void minus(const char *previous, const char *last, char **result)
@@ -30,7 +30,7 @@ void minus(const char *previous, const char *last, char **result)
         minus(previous, last + 1, result);
         return;
     }
-    switch (compare(previous, last))
+    switch (compare_nonnegative(previous, last))
     {
     case 1:
         big_minus_small(previous, last, result);
@@ -165,7 +165,7 @@ static void big_minus_small(const char *previous, const char *last, char **resul
         {
             if ('0' - borrow < last_point[times + 1]) //要借位
             {
-                (*result)[i] = '0' + 10 - borrow - last_point[times + 1];
+                (*result)[i] = '0' + 10 - borrow - last_point[times + 1] + '0';
                 borrow = 1;
             }
             else
@@ -252,7 +252,7 @@ static void big_minus_small(const char *previous, const char *last, char **resul
     }
 }
 
-char compare(const char *previous, const char *last) //前面大则返回1 相同返回0
+char compare_nonnegative(const char *previous, const char *last) //前面大则返回1 相同返回0
 {
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
