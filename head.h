@@ -13,14 +13,6 @@ void minus(const char *previous, const char *last, char **result);
 void multiply(const char *previous, const char *last, char **result);
 void divide(const char *previous, const char *last, size_t fraction_len, char **result);
 
-#define move()                                                                          \
-    do                                                                                  \
-    {                                                                                   \
-        (*result)[i] = *((p_len > l_len ? pre_point : last_point) + max(p_len, l_len)); \
-        i++;                                                                            \
-        p_len > l_len ? p_len-- : l_len--;                                              \
-    } while (0)
-
 void lib_plus(const char *previous, const char *last, char **result, char signal);
 void reverse(char **result);
 void delete_0(char **result);

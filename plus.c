@@ -186,7 +186,11 @@ size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point
 {
     size_t i = 0;
     while (p_len != l_len)
-        move();
+    {
+        (*result)[i] = *((p_len > l_len ? pre_point : last_point) + max(p_len, l_len));
+        i++;
+        p_len > l_len ? p_len-- : l_len--;
+    }
     while (p_len)
     { // temp
         if ((*(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry) >= 10)
