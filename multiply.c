@@ -56,17 +56,14 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
             j++;
         }
     }
-    char *plus_temp = (char *)malloc(2);
-    plus_temp[0] = '0';
-    plus_temp[1] = 0;
+    *result = realloc(*result, 2);
+    (*result)[0] = '0';
+    (*result)[1] = 0;
     while (j--)
     {
-        plus(temp[j], plus_temp, result);
-        plus_temp = (char *)realloc(plus_temp, strlen(*result) + 1);
-        memcpy(plus_temp, *result, strlen(*result) + 1);
+        plus(temp[j], *result, result);
         free(temp[j]);
     }
-    free(plus_temp);
     free(temp);
 
     char *pre_point = strchr(previous, '.');

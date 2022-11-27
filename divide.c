@@ -11,7 +11,7 @@ void divide(const char *previous, const char *last, size_t fraction_len, char **
 {
     if (*result == previous || *result == last) //结果和来源共用
     {
-        char* temp_result = malloc(1);
+        char *temp_result = malloc(1);
         divide(previous, last, fraction_len, &temp_result);
         *result = realloc(*result, strlen(temp_result) + 1);
         memcpy(*result, temp_result, strlen(temp_result) + 1);
@@ -112,8 +112,8 @@ static void lib_div(const char *previous, const char *last, size_t fraction_len,
         }
         else
         {
-            char temp_multiply[3] = {'1', '0', 0};
-            multiply(tail, temp_multiply, &temp_tail);
+            char multiply_10[3] = {'1', '0', 0};
+            multiply(tail, multiply_10, &temp_tail);
             char temp_plus[2] = {*point, 0};
             plus(temp_tail, temp_plus, &tail);
             switch (compare_nonnegative(tail, last))
@@ -141,15 +141,13 @@ static void lib_div(const char *previous, const char *last, size_t fraction_len,
             case 1:
             {
                 char quotient = 0;
-                get_minus_result(tail, last, &quotient);
+                get_minus_result(tail, last, &quotient); //得到商
                 (*result)[i] = quotient + '0';
                 char *temp = malloc(2);
                 temp[0] = (*result)[i];
                 temp[1] = 0;
                 multiply(temp, last, &temp_tail);
-                temp = realloc(temp, strlen(tail) + 1);
-                memcpy(temp, tail, strlen(tail) + 1);
-                minus(temp, temp_tail, &tail); //新的竖式差
+                minus(tail, temp_tail, &tail); //新的竖式差
                 free(temp);
                 break;
             }
@@ -174,23 +172,17 @@ static void lib_div(const char *previous, const char *last, size_t fraction_len,
 static void erase_last_point(const char *previous, const char *last, char **process_previous, char **process_last)
 {
     char multiply_10[3] = {'1', '0', 0};
-    char *temp_previous = malloc(strlen(previous) + 1);
-    char *temp_last = malloc(strlen(last) + 1);
-    memcpy(temp_previous, previous, strlen(previous) + 1);
-    memcpy(temp_last, last, strlen(last) + 1);
+    *process_previous = realloc(*process_previous, strlen(previous) + 1);
+    *process_last = realloc(*process_last, strlen(last) + 1);
+    memcpy(*process_previous, previous, strlen(previous) + 1);
+    memcpy(*process_last, last, strlen(last) + 1);
 
     size_t fraction_len = strlen(last) - (strchr(last, '.') - last) - 1;
     while (fraction_len--)
     {
-        multiply(temp_previous, multiply_10, process_previous);
-        multiply(temp_last, multiply_10, process_last);
-        temp_previous = realloc(temp_previous, strlen(*process_previous) + 1);
-        temp_last = realloc(temp_last, strlen(*process_last) + 1);
-        memcpy(temp_previous, *process_previous, strlen(*process_previous) + 1);
-        memcpy(temp_last, *process_last, strlen(*process_last) + 1);
+        multiply(*process_previous, multiply_10, process_previous);
+        multiply(*process_last, multiply_10, process_last);
     }
-    free(temp_previous);
-    free(temp_last);
 }
 
 static void add_previous_point(const char *previous, char **has_point_previous)
