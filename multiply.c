@@ -63,8 +63,7 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
     {
         plus(temp[j], plus_temp, result);
         plus_temp = (char *)realloc(plus_temp, strlen(*result) + 1);
-        memcpy(plus_temp, *result, strlen(*result));
-        plus_temp[strlen(*result)] = 0;
+        memcpy(plus_temp, *result, strlen(*result) + 1);
         free(temp[j]);
     }
     free(plus_temp);
