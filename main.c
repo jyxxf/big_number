@@ -3,22 +3,15 @@
 #include <string.h>
 #include "head.h"
 
-#define compare_result(result, aim)                        \
-    do                                                     \
-    {                                                      \
-        size_t i = 0;                                      \
-        while (aim[i])                                     \
-        {                                                  \
-            if (result[i] == aim[i])                       \
-                i++;                                       \
-            else                                           \
-            {                                              \
-                printf("line %u error! \n", __LINE__ - 1); \
-                printf("yours is %s\n", result);           \
-                printf("true  is %s\n", aim);              \
-                return;                                    \
-            }                                              \
-        }                                                  \
+#define compare_result(result, aim)                    \
+    do                                                 \
+    {                                                  \
+        if (strcmp(result, aim) != 0)                  \
+        {                                              \
+            printf("line %u error! \n", __LINE__ - 1); \
+            printf("yours is %s\n", result);           \
+            printf("true  is %s\n", aim);              \
+        }                                              \
     } while (0);
 
 static void test_plus(void);
@@ -45,6 +38,8 @@ static void test_plus(void)
     compare_result(result, "5655494603144095910756984799343.9149132474474447984944494894944989");
     plus("556", "9999955410", &result);
     compare_result(result, "9999955966");
+    plus("65069196000000", "976037940000000", &result);
+    compare_result(result, "1041107136000000");
     plus("556", "9999955410.0358776543255678891", &result);
     compare_result(result, "9999955966.0358776543255678891");
     plus("-6699345645645624234333", "-332.015", &result);
@@ -62,10 +57,10 @@ static void test_plus(void)
     plus("2.23", "-2.23", &result);
     compare_result(result, "0");
 
-    result = realloc(result, strlen("3458374.2344532") + 1);
-    memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
-    plus(result, "-435254523555.235432888400", &result);
-    compare_result(result, "-435251065181.0009796884");
+    result = realloc(result, strlen("+3454564538374.2344532") + 1);
+    memcpy(result, "+3454564538374.2344532", strlen("+3454564538374.2344532") + 1);
+    plus(result, "23555.235432888400", &result);
+    compare_result(result, "3454564561929.4698860884");
 
     result = realloc(result, strlen("325345.98") + 1);
     memcpy(result, "325345.98", strlen("325345.98") + 1);
@@ -81,8 +76,10 @@ static void test_minus(void)
     compare_result(result, "0");
     minus("0.00", "-0.000", &result);
     compare_result(result, "0");
-    minus("+8956412.0", "+1.013546874456321459874563214566", &result);
+    minus("+8956412.000", "+1.013546874456321459874563214566", &result);
     compare_result(result, "8956410.986453125543678540125436785434");
+    minus("23555.235432888400", "3454564538374.2344532", &result);
+    compare_result(result, "-3454564514818.9990203116");
     minus("-34765847658.32145354235453414", "47684567573468256482.231453556235523", &result);
     compare_result(result, "-47684567608234104140.55290709859005714");
     minus("1.1", "5596.254", &result);
@@ -112,8 +109,8 @@ static void test_minus(void)
 
     result = realloc(result, strlen("3458374.2344532") + 1);
     memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);
-    minus(result, "-435254523555.235432888400", &result);
-    compare_result(result, "435257981929.4698860884");
+    minus(result, "435254523555.235432888400", &result);
+    compare_result(result, "-435251065181.0009796884");
 
     result = realloc(result, strlen("-325345.98") + 1);
     memcpy(result, "-325345.98", strlen("-325345.98") + 1);
@@ -174,6 +171,8 @@ static void test_multiply(void)
     compare_result(result, "-0.00000001");
     multiply("-1.20", "5.0", &result);
     compare_result(result, "-6");
+    multiply("-325345.98", "-325345.98", &result);
+    compare_result(result, "105850006702.1604");
 
     result = realloc(result, strlen("3458374.2344532") + 1);
     memcpy(result, "3458374.2344532", strlen("3458374.2344532") + 1);

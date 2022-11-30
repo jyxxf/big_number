@@ -1,5 +1,5 @@
 #include "head.h"
-extern char compare_nonnegative(const char *previous, const char *last);
+extern char nonnegative_compare(const char *previous, const char *last);
 static void lib_divide(const char *previous, const char *last, size_t fraction_len, char **result, char signal);
 static void erase_last_point(const char *previous, const char *last, char **process_previous, char **process_last);
 static void add_previous_point(const char *previous, char **has_point_previous);
@@ -116,7 +116,7 @@ static void lib_div(const char *previous, const char *last, size_t fraction_len,
             multiply(tail, multiply_10, &temp_tail);
             char temp_plus[2] = {*point, 0};
             plus(temp_tail, temp_plus, &tail);
-            switch (compare_nonnegative(tail, last))
+            switch (nonnegative_compare(tail, last))
             {
             case -1:
             {

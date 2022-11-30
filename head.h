@@ -16,3 +16,8 @@ void divide(const char *previous, const char *last, size_t fraction_len, char **
 void lib_plus(const char *previous, const char *last, char **result, char signal);
 void reverse(char **result);
 void delete_0(char **result);
+
+char get_fraction_number(const char *const head, const char *const tail, const size_t index_after_point);
+
+#define get_int_number(head, point_or_tail, index_before_point) \
+    ((point_or_tail) - (index_before_point) < (head) ? '0' : *((point_or_tail) - (index_before_point)))

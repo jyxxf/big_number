@@ -7,5 +7,6 @@ In other words, the variable must be dynamically allocated.
 6. The program will delete the additional zero in the end except division. For example `plus("3.33", "0.07", &result);`
 The result is _"3.4"_ but not _"3.40"_.
 7. The result won't be *+0* or *-0* but will be *0* in plus, minus and multiply.
-8. **You should look at the test cases in `main` function before you use it.**
-9. E-mail jyygxxf@outlook.com if having any questions.
+8. no memory leak
+9. **You should look at the test cases in `main` function before you use it.**
+10. E-mail jyygxxf@outlook.com if having any questions.

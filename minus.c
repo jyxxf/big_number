@@ -1,12 +1,13 @@
 #include "head.h"
-char compare_nonnegative(const char *previous, const char *last);
-static void big_minus_small(const char *previous, const char *last, char **result);
+char nonnegative_compare(const char *previous, const char *last);
+static void lib_minus(const char *previous, const char *last, char **result);
+static void minus_digit(char a, char b, char *borrow, char **result, size_t index);
 
 void minus(const char *previous, const char *last, char **result)
 {
     if (*result == previous || *result == last) //结果和来源共用
     {
-        char* temp_result = malloc(1);
+        char *temp_result = malloc(1);
         minus(previous, last, &temp_result);
         *result = realloc(*result, strlen(temp_result) + 1);
         memcpy(*result, temp_result, strlen(temp_result) + 1);
@@ -39,309 +40,119 @@ void minus(const char *previous, const char *last, char **result)
         minus(previous, last + 1, result);
         return;
     }
-    switch (compare_nonnegative(previous, last))
+    switch (nonnegative_compare(previous, last))
     {
     case 1:
-        big_minus_small(previous, last, result);
-        break;
-    case -1:
-        big_minus_small(last, previous, result);
-        size_t i = 0;
-        while ((*result)[i])
-            i++;
-        (*result)[i] = '-';
+        lib_minus(previous, last, result);
         break;
     case 0:
-        *result = (char *)realloc(*result, 2);
+        (*result) = realloc(*result, 2);
         (*result)[0] = '0';
         (*result)[1] = 0;
+        break;
+    default:
+        lib_minus(last, previous, result);
+        (*result)[strlen(*result)] = '-';
+        (*result)[strlen(*result)] = 0;
     }
     reverse(result);
     delete_0(result);
 }
 
-static void big_minus_small(const char *previous, const char *last, char **result)
+static void lib_minus(const char *previous, const char *last, char **result)
 {
-    size_t i = 0;
-    u8 borrow = 0;
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    if (pre_point && last_point) //按有无小数点也分为4种情况
+    const char *pre_point_or_tail = pre_point != NULL ? pre_point : strchr(previous, 0);
+    const char *last_point_or_tail = last_point != NULL ? last_point : strchr(last, 0);
+    const char *pre_tail = strchr(previous, 0);
+    const char *last_tail = strchr(last, 0);
+    size_t fraction_times;
+    if (pre_point || last_point)
+        fraction_times = max(pre_tail - pre_point_or_tail, last_tail - last_point_or_tail) - 1;
+    else
+        fraction_times = 0;
+    size_t integer_times = max(pre_point_or_tail - previous, last_point_or_tail - last);
+    *result = realloc(*result, fraction_times + integer_times + 3);
+    memset(*result, 0, fraction_times + integer_times + 3);
+    size_t i = 0, j = 0;
+    char borrow = 0;
+    int is_add_point = fraction_times;
+    while (fraction_times--)
     {
-        size_t pre_fraction_len = strlen(previous) - (pre_point - previous) - 1;
-        size_t l_fraction_len = strlen(last) - (last_point - last) - 1;
-        size_t index = max(pre_fraction_len, l_fraction_len);
-        (*result) = (char *)realloc(*result, max(pre_fraction_len, l_fraction_len) + 3 + pre_point - previous);
-        memset(*result, 0, max(pre_fraction_len, l_fraction_len) + 3 + pre_point - previous);
-        while (index)
-        {
-            if (pre_fraction_len < index)
-            {
-                (*result)[i] = 10 - (last_point[index] - '0') + '0' - borrow;
-                borrow = 1;
-            }
-            else if (l_fraction_len < index)
-            {
-                (*result)[i] = pre_point[index];
-            }
-            else
-            {
-                if (pre_point[index] - borrow >= last_point[index])
-                {
-                    (*result)[i] = pre_point[index] - borrow - last_point[index] + '0';
-                    borrow = 0;
-                }
-                else
-                {
-                    (*result)[i] = pre_point[index] - '0' + 10 - borrow - (last_point[index] - '0') + '0';
-                    borrow = 1;
-                }
-            }
-            index--;
-            i++;
-        }
+        minus_digit(get_fraction_number(pre_point_or_tail, strchr(previous, 0), fraction_times + 1),
+                    get_fraction_number(last_point_or_tail, strchr(last, 0), fraction_times + 1), &borrow, result, i);
+        i++;
+    }
+    if (is_add_point)
+    {
         (*result)[i] = '.';
         i++;
-        index = 1;
-        while (index <= pre_point - previous)
-        {
-            if (index > last_point - last)
-                if (*(pre_point - index) - borrow - '0' >= 0)
-                {
-                    (*result)[i] = *(pre_point - index) - borrow;
-                    borrow = 0;
-                }
-                else
-                {
-                    (*result)[i] = '9';
-                    borrow = 1;
-                }
-            else if (*(pre_point - index) - borrow >= *(last_point - index))
-            {
-                (*result)[i] = *(pre_point - index) - borrow - *(last_point - index) + '0';
-                borrow = 0;
-            }
-            else
-            {
-                (*result)[i] = *(pre_point - index) - '0' + 10 - borrow - (*(last_point - index) - '0') + '0';
-                borrow = 1;
-            }
-            i++;
-            index++;
-        }
     }
-    else if (pre_point == NULL && last_point == NULL) //都没有小数点
+    while (j++ < integer_times)
     {
-        size_t pre_len = strlen(previous);
-        size_t l_len = strlen(last);
-        size_t times = max(pre_len, l_len);
-        *result = (char *)realloc(*result, times + 2);
-        memset(*result, 0, times + 2);
-        while (i < times)
-        {
-            if (i > l_len - 1)
-                if (previous[pre_len - 1 - i] - borrow < '0')
-                    (*result)[i] = '9';
-                else
-                {
-                    (*result)[i] = previous[pre_len - 1 - i] - borrow;
-                    borrow = 0;
-                }
-            else
-            {
-                if (previous[pre_len - 1 - i] - borrow < last[l_len - 1 - i])
-                {
-                    (*result)[i] = 10 + previous[pre_len - 1 - i] - borrow - last[l_len - 1 - i] + '0';
-                    borrow = 1;
-                }
-                else
-                {
-                    (*result)[i] = previous[pre_len - 1 - i] - borrow - last[l_len - 1 - i] + '0';
-                    borrow = 0;
-                }
-            }
-            i++;
-        }
-    }
-    else if (!pre_point)
-    {
-        size_t l_fraction_len = strlen(last) - (last_point - last) - 1;
-        (*result) = (char *)realloc(*result, l_fraction_len + strlen(previous) + 3);
-        memset(*result, 0, l_fraction_len + strlen(previous) + 3);
-        size_t times = strlen(last) - (last_point - last) - 1; //小数点后次数
-        while (times--)
-        {
-            if ('0' - borrow < last_point[times + 1]) //要借位
-            {
-                (*result)[i] = '0' + 10 - borrow - last_point[times + 1] + '0';
-                borrow = 1;
-            }
-            else
-                (*result)[i] = '0';
-            i++;
-        }
-        (*result)[i] = '.';
+        minus_digit(get_int_number(previous, pre_point_or_tail, j),
+                    get_int_number(last, last_point_or_tail, j), &borrow, result, i);
         i++;
-        times = max(strlen(previous), last_point - last);
-        size_t j = 1;
-        while (times--)
-        {
-            if (j <= last_point - last)
-                if (previous[times] - borrow >= *(last_point - j))
-                {
-                    (*result)[i] = previous[times] - borrow - *(last_point - j) + '0';
-                    borrow = 0;
-                }
-                else
-                {
-                    (*result)[i] = 10 + previous[times] - borrow - *(last_point - j) + '0';
-                    borrow = 1;
-                }
-            else
-            {
-                if (previous[times] - borrow < '0')
-                {
-                    (*result)[i] = '9';
-                    borrow = 1;
-                }
-                else
-                {
-                    (*result)[i] = previous[times] - borrow;
-                    borrow = 0;
-                }
-            }
-            j++;
-            i++;
-        }
-    }
-    else if (!last_point)
-    {
-        size_t l_len = strlen(last);
-        size_t pre_int_len = pre_point - previous;
-        size_t pre_fraction_len = strlen(previous) - pre_int_len - 1;
-        size_t length = pre_fraction_len + max(pre_int_len, l_len) + 3;
-        *result = (char *)realloc(*result, length);
-        memset(*result, 0, length);
-        size_t times = pre_fraction_len;
-        while (i < times) //小数减法
-        {
-            (*result)[i] = pre_point[pre_fraction_len - i];
-            i++;
-        }
-        (*result)[i] = '.';
-        i++;
-        times = 0;
-        while (times < pre_int_len) //整数减法
-        {
-            if (times < l_len)
-                if (*(pre_point - times - 1) - borrow - last[l_len - times - 1] >= 0)
-                {
-                    (*result)[i] = *(pre_point - times - 1) - borrow - last[l_len - times - 1] + '0';
-                    borrow = 0;
-                }
-                else
-                {
-                    (*result)[i] = 10 + *(pre_point - times - 1) - borrow - last[l_len - times - 1] + '0';
-                    borrow = 1;
-                }
-            else if (*(pre_point - times - 1) - borrow >= '0')
-            {
-                (*result)[i] = *(pre_point - times - 1) - borrow;
-                borrow = 0;
-            }
-            else
-            {
-                (*result)[i] = '9';
-                borrow = 1;
-            }
-            i++;
-            times++;
-        }
     }
 }
 
-char compare_nonnegative(const char *previous, const char *last) //前面大则返回1 相同返回0
+/**
+ * @brief  前面大则返回1 相同返回0 前面小返回-1
+ *
+ * @param previous
+ * @param last
+ * @return char
+ */
+char nonnegative_compare(const char *previous, const char *last)
 {
     const char *pre_point = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    if (last_point && pre_point)
+    const char *pre_point_or_tail = pre_point != NULL ? pre_point : strchr(previous, 0);
+    const char *last_point_or_tail = last_point != NULL ? last_point : strchr(last, 0);
+    if (pre_point_or_tail - previous > last_point_or_tail - last)
+        return 1;
+    else if (pre_point_or_tail - previous < last_point_or_tail - last)
+        return -1;
+    else //整数部分位数一样
     {
-        if (strlen(previous) - strlen(pre_point) > strlen(last) - strlen(last_point))
-            return 1;
-        if (strlen(previous) - strlen(pre_point) < strlen(last) - strlen(last_point))
-            return -1;
-        if (strlen(previous) - strlen(pre_point) == strlen(last) - strlen(last_point))
+        for (size_t i = 0; i < pre_point_or_tail - previous; i++)
         {
-            if (strcmp(previous, last) < 0)
-                return -1;
-            if (strcmp(previous, last) > 0)
+            if (previous[i] > last[i])
                 return 1;
+            else if (previous[i] < last[i])
+                return -1;
+        }
+        if (pre_point == NULL && last_point == NULL)
             return 0;
-        }
-    }
-    else if (last_point == NULL && pre_point == NULL)
-    {
-        if (strlen(previous) > strlen(last))
-            return 1;
-        if (strlen(previous) < strlen(last))
-            return -1;
-        if (strlen(previous) == strlen(last))
+        //小数部分比较
+        const char *pre_tail = strchr(previous, 0);
+        const char *last_tail = strchr(last, 0);
+        size_t i = 0;
+        while (++i)
         {
-            if (strcmp(previous, last) < 0)
-                return -1;
-            if (strcmp(previous, last) > 0)
+            if (((pre_point_or_tail + i >= pre_tail) ? '0' : *(pre_point_or_tail + i)) > ((last_point_or_tail + i >= last_tail) ? '0' : *(last_point_or_tail + i)))
                 return 1;
-            return 0;
+            else if (((pre_point_or_tail + i >= pre_tail) ? '0' : *(pre_point_or_tail + i)) < ((last_point_or_tail + i >= last_tail) ? '0' : *(last_point_or_tail + i)))
+                return -1;
+            else if (pre_point_or_tail + i >= pre_tail && last_point_or_tail + i >= last_tail)
+                break;
         }
+        return 0;
     }
-    else if (pre_point == NULL)
+}
+
+static void minus_digit(char a, char b, char *borrow, char **result, size_t index)
+{
+    char temp = a - b - *borrow;
+    if (temp >= 0)
     {
-        if (strlen(previous) > strlen(last) - strlen(last_point))
-            return 1;
-        if (strlen(previous) < strlen(last) - strlen(last_point))
-            return -1;
-        if (strlen(previous) == strlen(last) - strlen(last_point))
-        {
-            int temp = strncmp(previous, last, strlen(previous));
-            if (temp > 0)
-                return 1;
-            if (temp < 0)
-                return -1;
-            if (temp == 0)
-            {
-                size_t i = 0;
-                while (last_point[i++])
-                    if (last_point[i] == '0')
-                        continue;
-                    else
-                        return -1;
-                return 0;
-            }
-        }
+        (*result)[index] = temp + '0';
+        *borrow = 0;
     }
-    else if (last_point == NULL)
+    else
     {
-        if (strlen(last) > strlen(previous) - strlen(pre_point))
-            return -1;
-        if (strlen(last) < strlen(previous) - strlen(pre_point))
-            return 1;
-        if (strlen(last) == strlen(previous) - strlen(pre_point))
-        {
-            int temp = strncmp(previous, last, strlen(last));
-            if (temp > 0)
-                return 1;
-            if (temp < 0)
-                return -1;
-            if (temp == 0)
-            {
-                size_t i = 0;
-                while (pre_point[i++])
-                    if (pre_point[i] == '0')
-                        continue;
-                    else
-                        return 1;
-                return 0;
-            }
-        }
+        (*result)[index] = temp + 10 + '0';
+        *borrow = 1;
     }
 }

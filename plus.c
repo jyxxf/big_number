@@ -1,7 +1,5 @@
 #include "head.h"
-size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result);
-void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
-              u8 *carry, char **result, size_t position);
+static void plus_digit(char a, char b, char *carry, char **result, size_t index);
 
 void plus(const char *previous, const char *last, char **result)
 {
@@ -48,48 +46,54 @@ void lib_plus(const char *previous, const char *last, char **result, char signal
     u8 carry = 0;
 
     size_t length = max(strlen(previous), strlen(last));
-    size_t pre_int_len;
-    size_t last_int_len;
-    size_t pre_fraction_len;
-    size_t last_fraction_len;
     length = length * 2 + 1;
     *result = (char *)realloc(*result, length);
     memset(*result, 0, length);
 
-    const char *pre_point = strchr(previous, '.');
+    const char *pre_piont = strchr(previous, '.');
     const char *last_point = strchr(last, '.');
-    //按小数点分为四种情况
-    if (pre_point && last_point) //都有小数点
+    const char *pre_point_or_tail = pre_piont != NULL ? pre_piont : strchr(previous, 0);
+    const char *last_point_or_tail = last_point != NULL ? last_point : strchr(last, 0);
+    size_t fraction_plus_times = 0;
+    if (pre_piont == NULL)
     {
-        pre_int_len = pre_point - previous;
-        last_int_len = last_point - last;
-        pre_fraction_len = strlen(previous) - pre_int_len - 1;
-        last_fraction_len = strlen(last) - last_int_len - 1;
+        if (last_point == NULL)
+            fraction_plus_times = 0;
+        else
+            fraction_plus_times = strchr(last, 0) - last_point - 1;
+    }
+    else
+    {
+        if (last_point == NULL)
+            fraction_plus_times = strchr(previous, 0) - pre_piont - 1;
+        else
+            fraction_plus_times = max(strchr(previous, 0) - pre_piont, strchr(last, 0) - last_point) - 1;
+    }
 
-        if (pre_point != NULL && last_point != NULL)
-        {
-            plus_int(previous, last, pre_point, last_point, &carry, result,
-                     plus_fraction(pre_point, pre_fraction_len, last_point, last_fraction_len, &carry, result));
-        }
-    }
-    else if (pre_point == NULL && last_point == NULL)
+    size_t integer_plus_times = max(pre_point_or_tail - previous, last_point_or_tail - last);
+    size_t i = 0, j = 0;
+    int is_add_point = fraction_plus_times;
+
+    while (fraction_plus_times--)
     {
-        plus_int(previous, last, previous + strlen(previous), last + strlen(last), &carry, result, 0);
+        plus_digit(get_fraction_number(pre_point_or_tail, strchr(previous, 0), fraction_plus_times + 1),
+                   get_fraction_number(last_point_or_tail, strchr(last, 0), fraction_plus_times + 1), &carry, result, i);
+        i++;
     }
-    else if (!pre_point)
+    if (is_add_point)
     {
-        last_int_len = last_point - last;
-        last_fraction_len = strlen(last) - last_int_len - 1;
-        plus_int(previous, last, previous + strlen(previous), last_point, &carry, result,
-                 plus_fraction(NULL, 0, last_point, last_fraction_len, &carry, result));
+        (*result)[i] = '.';
+        is_add_point = 0;
+        i++;
     }
-    else if (!last_point)
+    while (j++ < integer_plus_times)
     {
-        pre_int_len = pre_point - previous;
-        pre_fraction_len = strlen(previous) - pre_int_len - 1;
-        plus_int(previous, last, pre_point, last + strlen(last), &carry, result,
-                 plus_fraction(pre_point, pre_fraction_len, NULL, 0, &carry, result));
+        plus_digit(get_int_number(previous, pre_point_or_tail, j),
+                   get_int_number(last, last_point_or_tail, j), &carry, result, i);
+        i++;
     }
+    if (carry)
+        (*result)[i] = '1';
     if (signal == -1)
     {
         char *result_tail = strchr(*result, 0);
@@ -100,113 +104,24 @@ void lib_plus(const char *previous, const char *last, char **result, char signal
     delete_0(result);
 }
 
-/**
- * @brief
- *
- * @param previous
- * @param last
- * @param pre_point
- * @param last_point
- * @param carry
- * @param result
- * @param position
- */
-void plus_int(const char *previous, const char *last, const char *pre_point, const char *last_point,
-              u8 *carry, char **result, size_t position)
+char get_fraction_number(const char *const head, const char *const tail, const size_t index_after_point)
 {
-    size_t i = position;
-    while (last != last_point && previous != pre_point)
-    {
-        if ((*(last_point - 1) + *(pre_point - 1) - '0' - '0' + *carry) >= 10)
-        {
-            (*result)[i] = *(last_point - 1) + *(pre_point - 1) - '0' - '0' + *carry - 10 + '0';
-            *carry = 1;
-        }
-        else
-        {
-            (*result)[i] = *(last_point - 1) + *(pre_point - 1) - '0' - '0' + *carry + '0';
-            *carry = 0;
-        }
-        last_point--;
-        pre_point--;
-        i++;
-    }
-    if (last == last_point)
-    {
-        while (pre_point != previous)
-        {
-            if (*(pre_point - 1) + *carry - '0' >= 10)
-            {
-                (*result)[i] = *(pre_point - 1) + *carry - '0' - 10 + '0';
-                *carry = 1;
-            }
-            else
-            {
-                (*result)[i] = *(pre_point - 1) + *carry - '0' + '0';
-                *carry = 0;
-            }
-            i++;
-            pre_point--;
-        }
-    }
-    if (previous == pre_point)
-    {
-        while (last != last_point)
-        {
-            if (*(last_point - 1) + *carry - '0' >= 10)
-            {
-                (*result)[i] = *(last_point - 1) + *carry - '0' - 10 + '0';
-                *carry = 1;
-            }
-            else
-            {
-                (*result)[i] = *(last_point - 1) + *carry - '0' + '0';
-                *carry = 0;
-            }
-            i++;
-            last_point--;
-        }
-    }
-    if (*carry)
-        (*result)[i] = '1';
+    if (head + index_after_point >= tail)
+        return '0';
+    return *(head + index_after_point);
 }
 
-/**
- * @brief 小数部分相加
- *
- * @param pre_point 小数点指针
- * @param p_len 长度
- * @param last_point
- * @param l_len
- * @param carry 进位
- * @param result
- * @return size_t 小数和小数点加起来长度
- */
-size_t plus_fraction(const char *pre_point, size_t p_len, const char *last_point, size_t l_len, u8 *carry, char **result)
+static void plus_digit(char a, char b, char *carry, char **result, size_t index)
 {
-    size_t i = 0;
-    while (p_len != l_len)
+    int temp = a - '0' + b - '0' + *carry;
+    if (temp >= 10)
     {
-        (*result)[i] = *((p_len > l_len ? pre_point : last_point) + max(p_len, l_len));
-        i++;
-        p_len > l_len ? p_len-- : l_len--;
+        *carry = 1;
+        temp -= 10;
     }
-    while (p_len)
-    { // temp
-        if ((*(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry) >= 10)
-        {
-            (*result)[i] = *(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry - 10 + '0';
-            *carry = 1;
-        }
-        else
-        {
-            (*result)[i] = *(pre_point + p_len) + *(last_point + p_len) - '0' - '0' + *carry + '0';
-            *carry = 0;
-        }
-        p_len--;
-        i++;
+    else
+    {
+        *carry = 0;
     }
-    (*result)[i] = '.';
-    i++;
-    return i;
+    (*result)[index] = '0' + temp;
 }
