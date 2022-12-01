@@ -43,7 +43,7 @@ void plus(const char *previous, const char *last, char **result)
 
 void lib_plus(const char *previous, const char *last, char **result, char signal)
 {
-    u8 carry = 0;
+    char carry = 0;
 
     size_t length = max(strlen(previous), strlen(last));
     length = length * 2 + 1;
@@ -102,13 +102,6 @@ void lib_plus(const char *previous, const char *last, char **result, char signal
     }
     reverse(result);
     delete_0(result);
-}
-
-char get_fraction_number(const char *const head, const char *const tail, const size_t index_after_point)
-{
-    if (head + index_after_point >= tail)
-        return '0';
-    return *(head + index_after_point);
 }
 
 static void plus_digit(char a, char b, char *carry, char **result, size_t index)

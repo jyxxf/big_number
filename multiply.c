@@ -97,7 +97,7 @@ static void lib_multiply(const char *previous, const char *last, char **result, 
 static void single_multiply_previous(const char *previous, const char last, char **result, size_t row)
 {
     size_t i = 0;
-    u8 carry = 0;
+    char carry = 0;
     size_t pre_len = strlen(previous);
     *result = malloc(strlen(previous) + row + 2);
     memset(*result, 0, strlen(previous) + row + 2);

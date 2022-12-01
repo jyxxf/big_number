@@ -263,18 +263,12 @@ static void test_divide(void)
 
 void reverse(char **result) //第一个是负号不翻转，其余逆序输出
 {
-    if ((*result)[0] == '-')
-    {
-        char *temp = *result + 1;
-        reverse(&temp);
-        return;
-    }
     size_t last = 0;
     while ((*result)[last])
         last++;
     for (size_t i = 0; i < last / 2; i++)
     {
-        u8 temp = (*result)[i];
+        char temp = (*result)[i];
         (*result)[i] = (*result)[last - i - 1];
         (*result)[last - i - 1] = temp;
     }
@@ -287,12 +281,12 @@ void delete_0(char **result)
         char *temp = *result + 1;
         delete_0(&temp);
         if ((*result)[0] == '+')
-            memmove(*result, *result + 1, strlen(*result));
+            memmove(*result, *result + 1, strlen(*result)); //+号消除
         else if ((*result)[1] == '0' && (*result)[2] == 0)
-            memmove(*result, *result + 1, 2);
+            memmove(*result, *result + 1, 2); //-0变为0
         return;
     }
-    //分为前导0 和 小数点后的零
+    //消除前导0
     size_t i = 0;
     size_t length = strlen(*result);
     while (1)
@@ -310,7 +304,7 @@ void delete_0(char **result)
     }
     //清除小数点后的0
     char *point = strchr(*result, '.');
-    if (!point)
+    if (point == NULL)
         return;
     else
     {

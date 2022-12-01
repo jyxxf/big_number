@@ -77,7 +77,7 @@ static void lib_minus(const char *previous, const char *last, char **result)
     memset(*result, 0, fraction_times + integer_times + 3);
     size_t i = 0, j = 0;
     char borrow = 0;
-    int is_add_point = fraction_times;
+    size_t is_add_point = fraction_times;
     while (fraction_times--)
     {
         minus_digit(get_fraction_number(pre_point_or_tail, strchr(previous, 0), fraction_times + 1),
